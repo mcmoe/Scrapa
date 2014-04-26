@@ -31,7 +31,8 @@ public class H2Test {
 
             assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
-            ResultSet topScores = H2TopScorer.getTopScorers(connection);
+            @Cleanup Statement statement = H2Utils.createStatement(connection);
+            ResultSet topScores = H2TopScorer.getTopScorers(statement);
             assertColumnMetaData(topScores);
             assertResultHasOnePlayer(topScores);
             assertTopScorer(topScores);

@@ -18,8 +18,7 @@ public class H2TopScorer {
         return connection.prepareStatement(TopScorersSQL.ADD_TOP_SCORER);
     }
 
-    static ResultSet getTopScorers(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
+    static ResultSet getTopScorers(Statement statement) throws SQLException {
         return statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
     }
 
