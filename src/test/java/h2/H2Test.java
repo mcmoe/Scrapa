@@ -23,20 +23,21 @@ public class H2Test {
     private static final int POSITION = 1;
 
     @Test
-    public void test_create_h2_add_and_query() {
+    public void test_create_h2_add_query_and_delete() {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             //@Cleanup Connection connection = H2Utils.createEmbeddedH2Connection();
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
-            H2TopScorer.createTopScorersTable(statement);
+            H2TopScorer.createTopScorersTable(connection);
 
-            @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(addTopScorerStatement, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+            assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
-            ResultSet topScores = H2TopScorer.getTopScorers(statement);
+            ResultSet topScores = H2TopScorer.getTopScorers(connection);
             assertColumnMetaData(topScores);
             assertResultHasOnePlayer(topScores);
             assertTopScorer(topScores);
+
+            int rowsDeleted = H2TopScorer.deleteTopScorers(connection);
+            assertEquals(1, rowsDeleted);
         } catch(SQLException e) {
             logger.error("SQL Exception encountered!", e);
             fail("SQL Exception - check logs");
@@ -44,8 +45,12 @@ public class H2Test {
     }
 
     private void assertResultHasOnePlayer(ResultSet topScores) throws SQLException {
+        assertResultSetCount(topScores, 1);
+    }
+
+    private void assertResultSetCount(ResultSet topScores, int expected) throws SQLException {
         topScores.last();
-        assertEquals(1, topScores.getRow());
+        assertEquals(expected, topScores.getRow());
         topScores.beforeFirst();
     }
 
