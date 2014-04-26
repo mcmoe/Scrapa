@@ -43,7 +43,7 @@ public class Scraper {
         return normalizeXml(table.toString());
     }
 
-    private static String normalizeXml(String xml) {
+    public static String normalizeXml(String xml) {
         List<String> words = new ArrayList<>();
         Collections.addAll(words, xml.split("&nbsp;"));
         return words.stream().map(String::trim).collect(joining(""));
