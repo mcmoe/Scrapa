@@ -5,6 +5,7 @@ import com.gistlabs.mechanize.document.html.HtmlDocument;
 import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -55,5 +56,9 @@ public class Scraper {
         InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(tableXml));
         return builder.parse(is);
+    }
+
+    public static String cellToString(Node textCell) {
+        return textCell.getTextContent().trim();
     }
 }

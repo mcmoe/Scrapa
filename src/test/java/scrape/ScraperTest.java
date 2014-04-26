@@ -38,12 +38,12 @@ public class ScraperTest {
     public void test_get_mock_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock();
         NodeList rows = Scraper.parseRows(tableXml);
-        printRows(rows);
+        saveRows(rows);
     }
 
     @Test(expected = NullPointerException.class)
     public void dummy_test_print_rows_with_null() {
-        printRows(null);
+        logRows(null);
     }
 
     private void saveRows(NodeList rows) {
@@ -56,10 +56,10 @@ public class ScraperTest {
             Node playerGoalsCell = playerTeamCell.getNextSibling();
 
             // addTopScorersRow(position, playerName, playerTeam, playerGoals)
-            LOGGER.info(cellToString(positionCell) + " - "
-                      + cellToString(playerNameCell) + " - "
-                      + cellToString(playerTeamCell) + " - "
-                      + cellToString(playerGoalsCell) + " -- ");
+            LOGGER.info(Scraper.cellToString(positionCell) + ","
+                      + Scraper.cellToString(playerNameCell) + ","
+                      + Scraper.cellToString(playerTeamCell) + ","
+                      + Scraper.cellToString(playerGoalsCell));
 
             Node delimiterCell = playerGoalsCell.getNextSibling();
 
@@ -67,24 +67,24 @@ public class ScraperTest {
             Node teamGoalsCell = teamNameCell.getNextSibling();
 
             // addTeamsRow (position, teamNAme, teamGoals)
-            LOGGER.info(cellToString(positionCell) + " - "
-                      + cellToString(teamNameCell) + " - "
-                      + cellToString(teamGoalsCell));
+            LOGGER.info(Scraper.cellToString(positionCell) + ","
+                      + Scraper.cellToString(teamNameCell) + ","
+                      + Scraper.cellToString(teamGoalsCell));
         }
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */
-    private void printRows(NodeList rows) {
+    private static void logRows(NodeList rows) {
         for(int i = 0; i < rows.getLength(); ++i) {
             Node firstCell = rows.item(i);
             StringBuilder sBuilder = new StringBuilder();
-            sBuilder.append(cellToString(firstCell));
+            sBuilder.append(Scraper.cellToString(firstCell));
 
             Optional<Node> nextCell = Optional.ofNullable(firstCell.getNextSibling());
             while(nextCell.isPresent()) {
-                String textContent = nextCell.get().getTextContent();
-                if(!textContent.trim().isEmpty()) {
-                    sBuilder.append(",").append(textContent.trim());
+                String textContent = Scraper.cellToString(nextCell.get());
+                if(!textContent.isEmpty()) {
+                    sBuilder.append(",").append(textContent);
                 }
                 nextCell = Optional.ofNullable(nextCell.get().getNextSibling());
             }
@@ -92,11 +92,7 @@ public class ScraperTest {
         }
     }
 
-    private String cellToString(Node textCell) {
-        return textCell.getTextContent().trim();
-    }
-
-    private String scrapeMock() {
+    private String scrapeMock() throws IOException {
         @Cleanup InputStream inStream = getClass().getResourceAsStream("scrapedTable.xml");
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         String tableXml = reader.lines().collect(joining("&nbsp;"));
