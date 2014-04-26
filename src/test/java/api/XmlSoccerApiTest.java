@@ -2,6 +2,8 @@ package api;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,6 +24,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
  */
 public class XmlSoccerApiTest {
     private static final String API_KEY = "EUNXZONSOIZIZFEDDGZJMVGYYIWSTZNYKZQVBJWNECYUFUDEDH";
+    private static final Logger logger = LoggerFactory.getLogger(XmlSoccerApiTest.class);
 
     @Test
     public void test_xml_soccer_api_key() throws IOException, ParserConfigurationException, SAXException {
@@ -36,16 +39,16 @@ public class XmlSoccerApiTest {
         Node attribute = element.getAttributes().item(0);
 
         String attributeName = attribute.getNodeName();
-        System.err.println(attributeName);
+        logger.info("Attribute Name: " + attributeName);
         MatcherAssert.assertThat(attributeName, equalTo("xmlns"));
 
         String attributeValue = attribute.getNodeValue();
-        System.err.println(attributeValue);
+        logger.info("Attribute Value: " +attributeValue);
         MatcherAssert.assertThat(attributeValue, equalTo("http://xmlsoccer.com/"));
 
         Node node = element.getFirstChild();
         String response = node.getNodeValue();
-        System.err.println(response);
+        logger.info("Response: " + response);
         MatcherAssert.assertThat(response, equalTo("Hello  , you have access to free leagues (demo-user)."));
     }
 }
