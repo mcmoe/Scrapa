@@ -2,6 +2,7 @@ package h2;
 
 import lombok.Cleanup;
 import model.TopScorer;
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import java.sql.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Unit Test the H2TopScorer class
@@ -22,24 +24,34 @@ public class H2TopScorerTest {
     private static final int GOALS = 66;
     private static final int POSITION = 1;
 
+    @After
+    public void tearDown() {
+        try {
+            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            H2TopScorer.deleteTopScorers(connection);
+        } catch (SQLException e) {
+            LOGGER.error("SQL Exception encountered on tear down!", e);
+            fail("SQL Exception on tear down - check logs");
+        }
+    }
+
     @Test
     public void test_top_scorer_meta_data() {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
             @Cleanup Statement statement = H2Utils.createStatement(connection);
-            ResultSet topScores = H2TopScorer.getTopScorers(statement);
+            @Cleanup ResultSet topScores = H2TopScorer.getTopScorers(statement);
             assertResultSetMetaData(topScores);
-            assertResultSetCount(topScores, 1);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered !", e);
+            fail("SQL Exception - check logs");
         }
-
     }
 
-    @Test public void test_top_scorer_add_and_get() {
+    @Test
+    public void test_top_scorer_add_and_get() {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
@@ -56,19 +68,20 @@ public class H2TopScorerTest {
 
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered !", e);
+            fail("SQL Exception - check logs");
         }
     }
 
-    @Test public void test_top_scorer_add_and_delete() {
+    @Test
+    public void test_top_scorer_add_and_delete() {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
             assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
-
-            int rowsDeleted = H2TopScorer.deleteTopScorers(connection);
-            assertEquals(1, rowsDeleted);
+            assertEquals(1, H2TopScorer.deleteTopScorers(connection));
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered !", e);
+            fail("SQL Exception - check logs");
         }
     }
 
@@ -83,11 +96,5 @@ public class H2TopScorerTest {
         assertEquals("VARCHAR", metaData.getColumnTypeName(3));
         assertEquals("GOALS", metaData.getColumnName(4));
         assertEquals("INTEGER", metaData.getColumnTypeName(4));
-    }
-
-    private void assertResultSetCount(ResultSet topScores, int expected) throws SQLException {
-        topScores.last();
-        assertEquals(expected, topScores.getRow());
-        topScores.beforeFirst();
     }
 }
