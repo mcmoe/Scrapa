@@ -1,22 +1,24 @@
 package scrape;
 
 import lombok.Cleanup;
+import model.TeamGoals;
+import model.TopScorer;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.*;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.io.*;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.joining;
+import static org.junit.Assert.assertEquals;
+import static scrape.Scraper.normalizeXml;
 
 
 /**
@@ -26,76 +28,59 @@ import static java.util.stream.Collectors.joining;
 public class ScraperTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScraperTest.class);
+    private static int topScorerVisits = 0;
+    private static int teamGoalsVisits = 0;
+
+    @After
+    public void checkVisitsAndReset() {
+        assertEquals(20, topScorerVisits);
+        assertEquals(20, teamGoalsVisits);
+        topScorerVisits = 0;
+        teamGoalsVisits = 0;
+    }
 
     @Test @Ignore /* ignored to avoid spamming the web server! */
-    public void test_get_web_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void test_get_web_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = Scraper.scrapeWeb();
-        NodeList rows = Scraper.parseRows(tableXml);
-        saveRows(rows);
+        LOGGER.info(tableXml);
+        Scraper.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
     }
 
     @Test
-    public void test_get_mock_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void test_get_mock_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock();
-        NodeList rows = Scraper.parseRows(tableXml);
-        saveRows(rows);
+        LOGGER.info(tableXml);
+        Scraper.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
     }
 
     @Test(expected = NullPointerException.class)
-    public void dummy_test_print_rows_with_null() {
-        logRows(null);
-    }
-
-    private void saveRows(NodeList rows) {
-        for(int i = 0; i < rows.getLength(); ++i) {
-
-            Node positionCell = rows.item(i);
-
-            Node playerNameCell = positionCell.getNextSibling();
-            Node playerTeamCell = playerNameCell.getNextSibling();
-            Node playerGoalsCell = playerTeamCell.getNextSibling();
-
-            // addTopScorersRow(position, playerName, playerTeam, playerGoals)
-            LOGGER.info(Scraper.cellToString(positionCell) + ","
-                      + Scraper.cellToString(playerNameCell) + ","
-                      + Scraper.cellToString(playerTeamCell) + ","
-                      + Scraper.cellToString(playerGoalsCell));
-
-            Node delimiterCell = playerGoalsCell.getNextSibling();
-
-            Node teamNameCell = delimiterCell.getNextSibling();
-            Node teamGoalsCell = teamNameCell.getNextSibling();
-
-            // addTeamsRow (position, teamNAme, teamGoals)
-            LOGGER.info(Scraper.cellToString(positionCell) + ","
-                      + Scraper.cellToString(teamNameCell) + ","
-                      + Scraper.cellToString(teamGoalsCell));
-        }
-    }
-
-    /* Only reason i keep this is to illustrate the use of Optional */
-    private static void logRows(NodeList rows) {
-        for(int i = 0; i < rows.getLength(); ++i) {
-            Node firstCell = rows.item(i);
-            StringBuilder sBuilder = new StringBuilder();
-            sBuilder.append(Scraper.cellToString(firstCell));
-
-            Optional<Node> nextCell = Optional.ofNullable(firstCell.getNextSibling());
-            while(nextCell.isPresent()) {
-                String textContent = Scraper.cellToString(nextCell.get());
-                if(!textContent.isEmpty()) {
-                    sBuilder.append(",").append(textContent);
-                }
-                nextCell = Optional.ofNullable(nextCell.get().getNextSibling());
-            }
-            LOGGER.info(sBuilder.toString());
-        }
+    public void s() {
+        topScorerVisits = 20;
+        teamGoalsVisits = 20;
+        Scraper.logRows(null);
     }
 
     private String scrapeMock() throws IOException {
-        @Cleanup InputStream inStream = getClass().getResourceAsStream("scrapedTable.xml");
+        @Cleanup InputStream inStream = getClass().getResourceAsStream("scraped2012Table.xml");
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        String tableXml = reader.lines().collect(joining("&nbsp;"));
-        return Scraper.normalizeXml(tableXml);
+        return normalizeXml(reader.lines().collect(joining("")));
+    }
+
+    private class TopScorersVisitorTest implements  TopScorersVisitor {
+        @Override
+        public void visit(TopScorer topScorer) {
+            LOGGER.info(topScorer.toString());
+            topScorerVisits++;
+            // or addTopScorersRow(position, playerName, playerTeam, playerGoals) :)
+        }
+    }
+
+    private class TeamGoalsVisitorTest implements  TeamGoalsVisitor {
+        @Override
+        public void visit(TeamGoals teamGoals) {
+            LOGGER.info(teamGoals.toString());
+            teamGoalsVisits++;
+            // or addTeamGoalsRow (position, teamNAme, teamGoals) :)
+        }
     }
 }
