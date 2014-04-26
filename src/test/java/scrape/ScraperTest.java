@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.joining;
  */
 public class ScraperTest {
 
-    @Test @Ignore
+    @Test @Ignore /* ignored to avoid spamming the web server! */
     public void test_get_web_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = Scraper.scrapeWeb();
         NodeList rows = Scraper.parseRows(tableXml);
@@ -35,6 +35,11 @@ public class ScraperTest {
         String tableXml = scrapeMock();
         NodeList rows = Scraper.parseRows(tableXml);
         saveRows(rows);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void dummy_test_print_rows_with_null() {
+        printRows(null);
     }
 
     private void saveRows(NodeList rows) {
@@ -63,7 +68,7 @@ public class ScraperTest {
         }
     }
 
-    @Deprecated /* Only reason i keep this is to illustrate the use of Optional */
+    /* Only reason i keep this is to illustrate the use of Optional */
     private void printRows(NodeList rows) {
         for(int i = 0; i < rows.getLength(); ++i) {
             Node firstCell = rows.item(i);
