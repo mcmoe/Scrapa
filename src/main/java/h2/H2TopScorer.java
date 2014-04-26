@@ -1,8 +1,11 @@
 package h2;
 
 import lombok.Cleanup;
+import model.TopScorer;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for all H2 related processing on TOP_SCORER table
@@ -20,6 +23,19 @@ public class H2TopScorer {
 
     static ResultSet getTopScorers(Statement statement) throws SQLException {
         return statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
+    }
+
+    public static List<TopScorer> getTopScorers(Connection connection) throws SQLException {
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
+        ResultSet resultSet = statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
+        List<TopScorer> topScorers = new ArrayList<>();
+
+        while(resultSet.next()) {
+            topScorers.add(new TopScorer(resultSet.getInt(1), resultSet.getString(2),
+                            resultSet.getString(3), resultSet.getInt(4)));
+        }
+
+        return topScorers;
     }
 
     static int addTopScorer(Connection connection, int position, String player, String team, int goals) throws SQLException {
