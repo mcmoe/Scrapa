@@ -4,6 +4,8 @@ import lombok.Cleanup;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -23,6 +25,8 @@ import static java.util.stream.Collectors.joining;
  */
 public class ScraperTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScraperTest.class);
+
     @Test @Ignore /* ignored to avoid spamming the web server! */
     public void test_get_web_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = Scraper.scrapeWeb();
@@ -34,7 +38,7 @@ public class ScraperTest {
     public void test_get_mock_page_and_scrap() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock();
         NodeList rows = Scraper.parseRows(tableXml);
-        saveRows(rows);
+        printRows(rows);
     }
 
     @Test(expected = NullPointerException.class)
@@ -46,16 +50,16 @@ public class ScraperTest {
         for(int i = 0; i < rows.getLength(); ++i) {
 
             Node positionCell = rows.item(i);
-            System.err.print(cellToString(positionCell) + " - ");
 
             Node playerNameCell = positionCell.getNextSibling();
             Node playerTeamCell = playerNameCell.getNextSibling();
             Node playerGoalsCell = playerTeamCell.getNextSibling();
 
             // addTopScorersRow(position, playerName, playerTeam, playerGoals)
-            System.err.print(cellToString(playerNameCell) + " - ");
-            System.err.print(cellToString(playerTeamCell) + " - ");
-            System.err.print(cellToString(playerGoalsCell) + " -- ");
+            LOGGER.info(cellToString(positionCell) + " - "
+                      + cellToString(playerNameCell) + " - "
+                      + cellToString(playerTeamCell) + " - "
+                      + cellToString(playerGoalsCell) + " -- ");
 
             Node delimiterCell = playerGoalsCell.getNextSibling();
 
@@ -63,8 +67,9 @@ public class ScraperTest {
             Node teamGoalsCell = teamNameCell.getNextSibling();
 
             // addTeamsRow (position, teamNAme, teamGoals)
-            System.err.print(cellToString(teamNameCell) + " - ");
-            System.err.print(cellToString(teamGoalsCell) + "\n");
+            LOGGER.info(cellToString(positionCell) + " - "
+                      + cellToString(teamNameCell) + " - "
+                      + cellToString(teamGoalsCell));
         }
     }
 
@@ -72,17 +77,18 @@ public class ScraperTest {
     private void printRows(NodeList rows) {
         for(int i = 0; i < rows.getLength(); ++i) {
             Node firstCell = rows.item(i);
-            System.err.print(cellToString(firstCell));
+            StringBuilder sBuilder = new StringBuilder();
+            sBuilder.append(cellToString(firstCell));
 
             Optional<Node> nextCell = Optional.ofNullable(firstCell.getNextSibling());
             while(nextCell.isPresent()) {
                 String textContent = nextCell.get().getTextContent();
                 if(!textContent.trim().isEmpty()) {
-                    System.err.print("," + textContent.trim());
+                    sBuilder.append(",").append(textContent.trim());
                 }
                 nextCell = Optional.ofNullable(nextCell.get().getNextSibling());
             }
-            System.err.println();
+            LOGGER.info(sBuilder.toString());
         }
     }
 

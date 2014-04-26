@@ -16,7 +16,7 @@ import static org.junit.Assert.fail;
  */
 public class H2Test {
 
-    private static final Logger logger = LoggerFactory.getLogger(H2Test.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2Test.class);
     private static final String WAYNE_ROONEY = "Wayne Rooney";
     private static final String MANCHESTER_UNITED = "Manchester United";
     private static final int GOALS = 66;
@@ -39,7 +39,7 @@ public class H2Test {
             int rowsDeleted = H2TopScorer.deleteTopScorers(connection);
             assertEquals(1, rowsDeleted);
         } catch(SQLException e) {
-            logger.error("SQL Exception encountered!", e);
+            LOGGER.error("SQL Exception encountered!", e);
             fail("SQL Exception - check logs");
         }
     }
