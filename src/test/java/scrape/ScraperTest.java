@@ -61,7 +61,7 @@ public class ScraperTest {
     }
 
     private String scrapeMock() throws IOException {
-        @Cleanup InputStream inStream = getClass().getResourceAsStream("scraped2012Table.xml");
+        @Cleanup InputStream inStream = getClass().getResourceAsStream("scraped2012Table");
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         return normalizeXml(reader.lines().collect(joining("")));
     }
