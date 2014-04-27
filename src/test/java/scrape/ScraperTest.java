@@ -18,6 +18,7 @@ import java.io.*;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static scrape.Scraper.normalizeXml;
 
 
@@ -33,8 +34,8 @@ public class ScraperTest {
 
     @After
     public void checkVisitsAndReset() {
-        assertEquals(20, topScorerVisits);
-        assertEquals(20, teamGoalsVisits);
+        assertTrue("There should exist at least 20 top scorers!", topScorerVisits >= 20);
+        assertEquals("Expecting 20 teams exactly", 20, teamGoalsVisits);
         topScorerVisits = 0;
         teamGoalsVisits = 0;
     }
@@ -47,8 +48,15 @@ public class ScraperTest {
     }
 
     @Test
-    public void test_get_mock_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
-        String tableXml = scrapeMock();
+    public void test_get_mock_2012_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        String tableXml = scrapeMock("scraped2012Table");
+        LOGGER.info(tableXml);
+        Scraper.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
+    }
+
+    @Test
+    public void test_get_mock_2013_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        String tableXml = scrapeMock("scraped2013Table");
         LOGGER.info(tableXml);
         Scraper.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
     }
@@ -60,8 +68,8 @@ public class ScraperTest {
         Scraper.logRows(null);
     }
 
-    private String scrapeMock() throws IOException {
-        @Cleanup InputStream inStream = getClass().getResourceAsStream("scraped2012Table");
+    private String scrapeMock(String scrapedTable) throws IOException {
+        @Cleanup InputStream inStream = getClass().getResourceAsStream(scrapedTable);
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         return normalizeXml(reader.lines().collect(joining("")));
     }

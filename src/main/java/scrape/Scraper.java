@@ -97,7 +97,10 @@ public class Scraper {
             String position = inheritPositionIfEmpty(positionCell);
 
             Node delimiterCell = visitTopScorer(topScorersVisitor, positionCell, position);
-            visitTeamGoals(teamGoalsVisitor, delimiterCell, teamPosition++);
+
+            if(delimiterCell != null) {
+                visitTeamGoals(teamGoalsVisitor, delimiterCell, teamPosition++);
+            }
         }
     }
 
