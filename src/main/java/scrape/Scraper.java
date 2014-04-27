@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.joining;
 public class Scraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scraper.class);
-    private static Integer latestPosition;
+    private static Integer latestRank;
 
     public static NodeList parseRows(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document doc = parseTable(tableXml);
@@ -73,67 +73,67 @@ public class Scraper {
         return textCell.getTextContent().trim();
     }
 
-    private static TopScorer buildTopScorer(String position, String name, String team, String goals) {
+    private static TopScorer buildTopScorer(String rank, String player, String team, String goals) {
         TopScorer topScorer = null;
         try {
-            topScorer = new TopScorer(Integer.valueOf(position), name, team, Integer.valueOf(goals));
+            topScorer = new TopScorer(Integer.valueOf(rank), player, team, Integer.valueOf(goals));
         } catch (NumberFormatException e) {
-            LOGGER.error(" -- " + position + " - " + name + " - " + team + " - " + goals + " -- ", e);
+            LOGGER.error(" -- " + rank + " - " + player + " - " + team + " - " + goals + " -- ", e);
         }
 
         return topScorer;
     }
 
-    private static TeamGoals buildTeamGoals(Integer position, String team, String goals) {
-        return new TeamGoals(position, team, Integer.valueOf(goals));
+    private static TeamGoals buildTeamGoals(Integer rank, String team, String goals) {
+        return new TeamGoals(rank, team, Integer.valueOf(goals));
     }
 
     static void parseAndVisit(String tableXml, TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
         NodeList rows = parseRows(tableXml);
-        latestPosition = 1;
-        Integer teamPosition = 1;
+        latestRank = 1;
+        Integer teamRank = 1;
         for(int i = 0; i < rows.getLength(); ++i) {
-            Node positionCell = rows.item(i);
-            String position = inheritPositionIfEmpty(positionCell);
+            Node rankCell = rows.item(i);
+            String rank = inheritRankIfEmpty(rankCell);
 
-            Node delimiterCell = visitTopScorer(topScorersVisitor, positionCell, position);
+            Node delimiterCell = visitTopScorer(topScorersVisitor, rankCell, rank);
 
             if(delimiterCell != null) {
-                visitTeamGoals(teamGoalsVisitor, delimiterCell, teamPosition++);
+                visitTeamGoals(teamGoalsVisitor, delimiterCell, teamRank++);
             }
         }
     }
 
-    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell, Integer position) {
+    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell, Integer rank) {
         Node teamNameCell = delimiterCell.getNextSibling();
         Node teamGoalsCell = teamNameCell.getNextSibling();
 
-        TeamGoals teamGoals = buildTeamGoals(position, cellToString(teamNameCell),
+        TeamGoals teamGoals = buildTeamGoals(rank, cellToString(teamNameCell),
                                              cellToString(teamGoalsCell));
         teamGoalsVisitor.visit(teamGoals);
     }
 
-    private static Node visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell, String position) {
+    private static Node visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell, String rank) {
         Node playerNameCell = delimiterCell.getNextSibling();
         Node playerTeamCell = playerNameCell.getNextSibling();
         Node playerGoalsCell = playerTeamCell.getNextSibling();
 
-        TopScorer topScorer = buildTopScorer(position, cellToString(playerNameCell),
+        TopScorer topScorer = buildTopScorer(rank, cellToString(playerNameCell),
                                              cellToString(playerTeamCell), cellToString(playerGoalsCell));
         topScorersVisitor.visit(topScorer);
 
         return playerGoalsCell.getNextSibling();
     }
 
-    private static String inheritPositionIfEmpty(Node positionCell) {
-        String position = cellToString(positionCell);
+    private static String inheritRankIfEmpty(Node rankCell) {
+        String rank = cellToString(rankCell);
 
-        if(position.isEmpty()) {
-            return latestPosition.toString();
+        if(rank.isEmpty()) {
+            return latestRank.toString();
         } else {
-            latestPosition = Integer.valueOf(position);
+            latestRank = Integer.valueOf(rank);
         }
-        return position;
+        return rank;
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */

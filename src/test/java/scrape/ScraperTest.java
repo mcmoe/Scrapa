@@ -79,7 +79,7 @@ public class ScraperTest {
         public void visit(TopScorer topScorer) {
             LOGGER.info(topScorer.toString());
             topScorerVisits++;
-            // or addTopScorersRow(position, playerName, playerTeam, playerGoals) :)
+            // or addTopScorersRow(rank, playerName, playerTeam, playerGoals) :)
         }
     }
 
@@ -90,8 +90,8 @@ public class ScraperTest {
         public void visit(TeamGoals teamGoals) {
             LOGGER.info(teamGoals.toString());
             teamGoalsVisits++;
-            assertEquals(++uniqueRank, teamGoals.getPosition());
-            // or addTeamGoalsRow (position, teamNAme, teamGoals) :)
+            assertEquals(++uniqueRank, teamGoals.getRank());
+            // or addTeamGoalsRow (rank, teamName, teamGoals) :)
         }
     }
 }

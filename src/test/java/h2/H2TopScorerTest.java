@@ -22,7 +22,7 @@ public class H2TopScorerTest {
     private static final String WAYNE_ROONEY = "Wayne Rooney";
     private static final String MANCHESTER_UNITED = "Manchester United";
     private static final int GOALS = 66;
-    private static final int POSITION = 1;
+    private static final int RANK = 1;
 
     @After
     public void tearDown() {
@@ -55,14 +55,14 @@ public class H2TopScorerTest {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+            assertEquals(1, H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
             List<TopScorer> tops = H2TopScorer.getTopScorers(connection);
             assertEquals(1, tops.size());
             TopScorer topScorer = tops.get(0);
 
-            assertEquals(POSITION, topScorer.getPosition());
-            assertEquals(WAYNE_ROONEY, topScorer.getName());
+            assertEquals(RANK, topScorer.getRank());
+            assertEquals(WAYNE_ROONEY, topScorer.getPlayer());
             assertEquals(MANCHESTER_UNITED, topScorer.getTeam());
             assertEquals(GOALS, topScorer.getGoals());
 
@@ -77,7 +77,7 @@ public class H2TopScorerTest {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, POSITION, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+            assertEquals(1, H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
             assertEquals(1, H2TopScorer.deleteTopScorers(connection));
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered !", e);
@@ -88,9 +88,9 @@ public class H2TopScorerTest {
     private void assertResultSetMetaData(ResultSet topScores) throws SQLException {
         ResultSetMetaData metaData = topScores.getMetaData();
         assertEquals(4, metaData.getColumnCount());
-        assertEquals("POSITION", metaData.getColumnName(1));
+        assertEquals("RANK", metaData.getColumnName(1));
         assertEquals("INTEGER", metaData.getColumnTypeName(1));
-        assertEquals("NAME", metaData.getColumnName(2));
+        assertEquals("PLAYER", metaData.getColumnName(2));
         assertEquals("VARCHAR", metaData.getColumnTypeName(2));
         assertEquals("TEAM", metaData.getColumnName(3));
         assertEquals("VARCHAR", metaData.getColumnTypeName(3));

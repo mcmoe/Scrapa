@@ -38,9 +38,9 @@ public class H2TopScorer {
         return topScorers;
     }
 
-    static int addTopScorer(Connection connection, int position, String player, String team, int goals) throws SQLException {
+    static int addTopScorer(Connection connection, int rank, String player, String team, int goals) throws SQLException {
         @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
-        addTopScorerStatement.setInt(1, position);
+        addTopScorerStatement.setInt(1, rank);
         addTopScorerStatement.setString(2, player);
         addTopScorerStatement.setString(3, team);
         addTopScorerStatement.setInt(4, goals);
