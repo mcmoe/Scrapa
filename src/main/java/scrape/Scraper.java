@@ -98,6 +98,9 @@ public class Scraper {
                 visitTeamGoals(teamGoalsVisitor, delimiterCell.get());
             }
         }
+
+        topScorersVisitor.onExit();
+        teamGoalsVisitor.onExit();
     }
 
     private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell) {
@@ -106,7 +109,7 @@ public class Scraper {
 
         TeamGoals teamGoals = buildTeamGoals(cellToString(teamNameCell),
                                              cellToString(teamGoalsCell));
-        teamGoalsVisitor.visit(teamGoals);
+        teamGoalsVisitor.onRow(teamGoals);
     }
 
     private static Optional<Node> visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell) {
@@ -116,7 +119,7 @@ public class Scraper {
 
         TopScorer topScorer = buildTopScorer(cellToString(playerNameCell),
                                              cellToString(playerTeamCell), cellToString(playerGoalsCell));
-        topScorersVisitor.visit(topScorer);
+        topScorersVisitor.onRow(topScorer);
 
         return Optional.ofNullable(playerGoalsCell.getNextSibling());
     }

@@ -15,6 +15,8 @@ import javax.xml.parsers.*;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
@@ -75,20 +77,39 @@ public class ScraperTest {
     }
 
     private class TopScorersVisitorTest implements  TopScorersVisitor {
+        /* using list to preserve order */
+        private List<TopScorer> all = new ArrayList<>();
+
         @Override
-        public void visit(TopScorer topScorer) {
-            LOGGER.info(topScorer.toString());
-            topScorerVisits++;
+        public void onRow(TopScorer topScorer) {
+            all.add(topScorer);
+        }
+
+        @Override
+        public void onExit() {
+            topScorerVisits = all.size();
+            for(TopScorer t : all) {
+                LOGGER.info(t.toString());
+            }
             // or addTopScorersRow(playerName, playerTeam, playerGoals) :)
         }
     }
 
     private class TeamGoalsVisitorTest implements  TeamGoalsVisitor {
+        /* using list to preserve order */
+        private List<TeamGoals> all = new ArrayList<>();
 
         @Override
-        public void visit(TeamGoals teamGoals) {
-            LOGGER.info(teamGoals.toString());
-            teamGoalsVisits++;
+        public void onRow(TeamGoals teamGoals) {
+            all.add(teamGoals);
+        }
+
+        @Override
+        public void onExit() {
+            teamGoalsVisits = all.size();
+            for(TeamGoals t : all) {
+                LOGGER.info(t.toString());
+            }
             // or addTeamGoalsRow (teamName, teamGoals) :)
         }
     }
