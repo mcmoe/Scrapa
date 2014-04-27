@@ -17,7 +17,10 @@ public class TopScorersSQL {
             "INSERT INTO " + TOP_SCORERS + " (" + RANK + ", " + PLAYER + ", " + TEAM + ", " + GOALS + ") VALUES (?,?,?,?)";
     static final String
             CREATE_TOP_SCORERS_TABLE =
-            "CREATE TABLE IF NOT EXISTS " + TOP_SCORERS + "(" + RANK + " INT PRIMARY KEY, " + PLAYER + " VARCHAR(255), " + TEAM + " VARCHAR(255), " + GOALS + " INT)";
+            "CREATE TABLE IF NOT EXISTS " + TOP_SCORERS + "("
+                    + RANK + " INT, " + PLAYER + " VARCHAR(255), " + TEAM + " VARCHAR(255), " + GOALS + " INT, "
+                    + "PRIMARY KEY (PLAYER, TEAM)"
+                    + ")";
     static final String
             GET_TOP_SCORERS =
             "SELECT * FROM " + TOP_SCORERS;

@@ -72,6 +72,22 @@ public class H2TopScorerTest {
         }
     }
 
+    @Test(expected = SQLException.class)
+    public void test_top_scorer_add_duplicate() throws SQLException {
+        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        H2TopScorer.createTopScorersTable(connection);
+        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+    }
+
+    @Test(expected = SQLException.class)
+    public void test_top_scorer_add_primary_key_duplicate() throws SQLException {
+        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        H2TopScorer.createTopScorersTable(connection);
+        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        H2TopScorer.addTopScorer(connection, RANK+1, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
+    }
+
     @Test
     public void test_top_scorer_add_and_delete() {
         try {
