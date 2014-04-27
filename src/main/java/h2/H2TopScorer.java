@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Helper class for all H2 related processing on TOP_SCORER table
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 public class H2TopScorer {
     static void createTopScorersTable(Connection connection) throws SQLException {

@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit test the H2 DB API
- * Created by MC on 4/25/2014.
+ * Created by mcmoe on 4/25/2014.
  */
 public class H2Test {
 

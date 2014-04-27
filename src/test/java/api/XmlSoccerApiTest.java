@@ -20,7 +20,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Unit Test the XML SOCCER API Demo Trial
- * Created by MC on 4/25/2014.
+ * Created by mcmoe on 4/25/2014.
  */
 public class XmlSoccerApiTest {
     private static final String API_KEY = "EUNXZONSOIZIZFEDDGZJMVGYYIWSTZNYKZQVBJWNECYUFUDEDH";

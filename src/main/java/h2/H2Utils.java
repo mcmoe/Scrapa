@@ -9,7 +9,7 @@ import java.sql.Statement;
 
 /**
  * Utility Class for H2 related helper methods
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 public class H2Utils {
     static Connection createInMemoryH2Connection() throws SQLException {

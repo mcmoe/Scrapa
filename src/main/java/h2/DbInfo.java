@@ -2,7 +2,7 @@ package h2;
 
 /**
  * Information repo for H2 Database
- * Created by MC on 4/25/2014.
+ * Created by mcmoe on 4/25/2014.
  */
 public class DbInfo {
     static final String H2_MEM_DB = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";

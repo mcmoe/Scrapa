@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.joining;
 
 /**
  * Scrapes season team goals and top scorers information from free-elements
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 public class Scraper {
 

@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit Test the H2TopScorer class
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 public class H2TopScorerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(H2TopScorerTest.class);

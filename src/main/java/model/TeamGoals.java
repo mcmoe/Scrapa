@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * Represents a team and the number of goals they scored
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 @Data
 public class TeamGoals {

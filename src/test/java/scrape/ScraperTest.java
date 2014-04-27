@@ -24,7 +24,7 @@ import static scrape.Scraper.normalizeXml;
 
 /**
  * Attempt to load web page and scrape for data
- * Created by MC on 4/19/2014.
+ * Created by mcmoe on 4/19/2014.
  */
 public class ScraperTest {
 

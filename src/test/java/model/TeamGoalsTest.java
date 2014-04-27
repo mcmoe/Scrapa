@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit Test the TeamGoals object
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 public class TeamGoalsTest {
 

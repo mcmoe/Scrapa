@@ -2,7 +2,7 @@ package h2;
 
 /**
  * SQL statements for TOP_SCORERS Table
- * Created by MC on 4/25/2014.
+ * Created by mcmoe on 4/25/2014.
  */
 public class TopScorersSQL {
 

@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * Represents a top scorer object:
  * player, team, and number of goals
- * Created by MC on 4/26/2014.
+ * Created by mcmoe on 4/26/2014.
  */
 
 @Data
