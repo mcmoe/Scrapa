@@ -84,23 +84,24 @@ public class Scraper {
         return topScorer;
     }
 
-    private static TeamGoals buildTeamGoals(String position, String team, String goals) {
-        return new TeamGoals(Integer.valueOf(position), team, Integer.valueOf(goals));
+    private static TeamGoals buildTeamGoals(Integer position, String team, String goals) {
+        return new TeamGoals(position, team, Integer.valueOf(goals));
     }
 
     static void parseAndVisit(String tableXml, TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
         NodeList rows = parseRows(tableXml);
         latestPosition = 1;
+        Integer teamPosition = 1;
         for(int i = 0; i < rows.getLength(); ++i) {
             Node positionCell = rows.item(i);
             String position = inheritPositionIfEmpty(positionCell);
 
             Node delimiterCell = visitTopScorer(topScorersVisitor, positionCell, position);
-            visitTeamGoals(teamGoalsVisitor, delimiterCell, position);
+            visitTeamGoals(teamGoalsVisitor, delimiterCell, teamPosition++);
         }
     }
 
-    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell, String position) {
+    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell, Integer position) {
         Node teamNameCell = delimiterCell.getNextSibling();
         Node teamGoalsCell = teamNameCell.getNextSibling();
 
