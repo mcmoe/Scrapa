@@ -38,7 +38,7 @@ public class Scraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scraper.class);
 
-    public static NodeList parseRows(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    private static NodeList parseRows(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document doc = parseTable(tableXml);
         XPath xPath = XPathFactory.newInstance().newXPath();
         return (NodeList) xPath.evaluate("/tbody/tr/th [@class='NRW']", doc, XPathConstants.NODESET);
@@ -68,7 +68,7 @@ public class Scraper {
         return builder.parse(is);
     }
 
-    public static String cellToString(Node textCell) {
+    private static String cellToString(Node textCell) {
         return textCell.getTextContent().trim();
     }
 
