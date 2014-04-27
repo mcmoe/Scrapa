@@ -3,7 +3,6 @@ package parser;
 import lombok.Cleanup;
 import model.TeamGoals;
 import model.TopScorer;
-import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the parsing of the scraped free-elements data using mocks
@@ -30,35 +28,29 @@ import static org.junit.Assert.assertTrue;
 public class ParserTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParserTest.class);
-    private static int topScorerVisits = 0;
-    private static int teamGoalsVisits = 0;
-
-    @After
-    public void checkVisitsAndReset() {
-        assertTrue("There should exist at least 20 top scorers!", topScorerVisits >= 20);
-        assertEquals("Expecting 20 teams exactly", 20, teamGoalsVisits);
-        topScorerVisits = 0;
-        teamGoalsVisits = 0;
-    }
-
     @Test
-    public void test_get_mock_2012_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock("scraped2012Table");
         LOGGER.info(tableXml);
-        Parser.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
+        Parser.parseAndVisit(tableXml, new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
     }
 
     @Test
-    public void test_get_mock_2013_page_and_scrape() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void test_parse_and_visit_mock_2013() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock("scraped2013Table");
         LOGGER.info(tableXml);
-        Parser.parseAndVisit(tableXml, new TopScorersVisitorTest(), new TeamGoalsVisitorTest());
+        Parser.parseAndVisit(tableXml, new TopScorersVisitorTest(21), new TeamGoalsVisitorTest(20));
+    }
+
+    @Test
+    public void test_parse_and_visit_mock_1986() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        String tableXml = scrapeMock("scraped1986Table");
+        LOGGER.info(tableXml);
+        Parser.parseAndVisit(tableXml, new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(22));
     }
 
     @Test(expected = NullPointerException.class)
     public void s() {
-        topScorerVisits = 20;
-        teamGoalsVisits = 20;
         Parser.logRows(null);
     }
 
@@ -69,8 +61,13 @@ public class ParserTest {
     }
 
     private class TopScorersVisitorTest implements TopScorersVisitor {
+        private final int expectedVisits;
         /* using list to preserve order */
         private List<TopScorer> all = new ArrayList<>();
+
+        public TopScorersVisitorTest(int expectedVisits) {
+            this.expectedVisits = expectedVisits;
+        }
 
         @Override
         public void onRow(TopScorer topScorer) {
@@ -79,7 +76,9 @@ public class ParserTest {
 
         @Override
         public void onExit() {
-            topScorerVisits = all.size();
+            int topScorerVisits = all.size();
+            assertEquals("Expecting " + expectedVisits + " top scorers!", expectedVisits, topScorerVisits);
+
             for(TopScorer t : all) {
                 LOGGER.info(t.toString());
             }
@@ -88,8 +87,13 @@ public class ParserTest {
     }
 
     private class TeamGoalsVisitorTest implements TeamGoalsVisitor {
+        private final int expectedVisits;
         /* using list to preserve order */
         private List<TeamGoals> all = new ArrayList<>();
+
+        public TeamGoalsVisitorTest(int expectedVisits) {
+            this.expectedVisits = expectedVisits;
+        }
 
         @Override
         public void onRow(TeamGoals teamGoals) {
@@ -98,7 +102,8 @@ public class ParserTest {
 
         @Override
         public void onExit() {
-            teamGoalsVisits = all.size();
+            int teamGoalsVisits = all.size();
+            assertEquals("Expecting " + expectedVisits + " teams!", expectedVisits, teamGoalsVisits);
             for(TeamGoals t : all) {
                 LOGGER.info(t.toString());
             }

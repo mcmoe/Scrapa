@@ -30,25 +30,36 @@ public class Parser {
     private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
 
     public static void parseAndVisit(String tableXml, TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        NodeList rows = parseRows(tableXml);
-        for(int i = 0; i < rows.getLength(); ++i) {
-            Node indexCell = rows.item(i);
+        visitTopScorers(tableXml, topScorersVisitor);
+        visitTeamGoals(tableXml, teamGoalsVisitor);
+    }
 
-            Optional<Node> delimiterCell = visitTopScorer(topScorersVisitor, indexCell);
-
-            if(delimiterCell.isPresent()) {
-                visitTeamGoals(teamGoalsVisitor, delimiterCell.get());
-            }
+    private static void visitTeamGoals(String tableXml, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        NodeList teamRows = parseTeamGoals(tableXml);
+        for(int i = 0; i < teamRows.getLength(); ++i) {
+            visitTeamGoals(teamGoalsVisitor, teamRows.item(i));
         }
-
-        topScorersVisitor.onExit();
         teamGoalsVisitor.onExit();
     }
 
-    private static NodeList parseRows(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    private static void visitTopScorers(String tableXml, TopScorersVisitor topScorersVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        NodeList playerRows = parseTopScorers(tableXml);
+        for(int i = 0; i < playerRows.getLength(); ++i) {
+            visitTopScorer(topScorersVisitor, playerRows.item(i));
+        }
+        topScorersVisitor.onExit();
+    }
+
+    private static NodeList parseTopScorers(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document doc = parseTable(tableXml);
         XPath xPath = XPathFactory.newInstance().newXPath();
         return (NodeList) xPath.evaluate("/tbody/tr/th [@class='NRW']", doc, XPathConstants.NODESET);
+    }
+
+    private static NodeList parseTeamGoals(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document doc = parseTable(tableXml);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        return (NodeList) xPath.evaluate("/tbody/tr/td [@class='TMN']", doc, XPathConstants.NODESET);
     }
 
     private static Document parseTable(String tableXml) throws ParserConfigurationException, SAXException, IOException {
@@ -59,20 +70,17 @@ public class Parser {
         return builder.parse(is);
     }
 
-    private static Optional<Node> visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell) {
-        Node playerNameCell = delimiterCell.getNextSibling();
+    private static void visitTopScorer(TopScorersVisitor topScorersVisitor, Node indexCell) {
+        Node playerNameCell = indexCell.getNextSibling();
         Node playerTeamCell = playerNameCell.getNextSibling();
         Node playerGoalsCell = playerTeamCell.getNextSibling();
 
         TopScorer topScorer = buildTopScorer(cellToString(playerNameCell),
                 cellToString(playerTeamCell), cellToString(playerGoalsCell));
         topScorersVisitor.onRow(topScorer);
-
-        return Optional.ofNullable(playerGoalsCell.getNextSibling());
     }
 
-    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node delimiterCell) {
-        Node teamNameCell = delimiterCell.getNextSibling();
+    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node teamNameCell) {
         Node teamGoalsCell = teamNameCell.getNextSibling();
 
         TeamGoals teamGoals = buildTeamGoals(cellToString(teamNameCell),

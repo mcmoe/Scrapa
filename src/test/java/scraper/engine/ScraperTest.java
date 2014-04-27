@@ -46,6 +46,18 @@ public class ScraperTest {
         }
     }
 
+    @Test @Ignore
+    public void test_get_1986_top_scorers_and_scrape() {
+        try {
+            String tableXml = Scraper.scrapeWeb("England/Seasons/S1986.html");
+            LOGGER.info(tableXml);
+            assertEquals(scrapeMock("scraped1986Table"), tableXml);
+        } catch(IOException e) {
+            LOGGER.error("exception in unit test", e);
+            fail("an exception was thrown!");
+        }
+    }
+
     private String scrapeMock(String scrapedTable) throws IOException {
         @Cleanup InputStream inStream = getClass().getResourceAsStream(scrapedTable);
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
