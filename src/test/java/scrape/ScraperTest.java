@@ -76,7 +76,7 @@ public class ScraperTest {
         return normalizeXml(reader.lines().collect(joining("")));
     }
 
-    private class TopScorersVisitorTest implements  TopScorersVisitor {
+    private class TopScorersVisitorTest implements TopScorersVisitor {
         /* using list to preserve order */
         private List<TopScorer> all = new ArrayList<>();
 
@@ -95,7 +95,7 @@ public class ScraperTest {
         }
     }
 
-    private class TeamGoalsVisitorTest implements  TeamGoalsVisitor {
+    private class TeamGoalsVisitorTest implements TeamGoalsVisitor {
         /* using list to preserve order */
         private List<TeamGoals> all = new ArrayList<>();
 
