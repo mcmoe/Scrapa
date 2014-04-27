@@ -1,4 +1,4 @@
-package scraper;
+package scraper.engine;
 
 import lombok.Cleanup;
 import org.junit.Ignore;
@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static scraper.Scraper.normalizeXml;
 
 /**
  * Attempt to load web page and scrape for data
@@ -50,6 +49,6 @@ public class ScraperTest {
     private String scrapeMock(String scrapedTable) throws IOException {
         @Cleanup InputStream inStream = getClass().getResourceAsStream(scrapedTable);
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        return normalizeXml(reader.lines().collect(joining("")));
+        return reader.lines().collect(joining(""));
     }
 }

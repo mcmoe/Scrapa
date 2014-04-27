@@ -1,4 +1,4 @@
-package scraper;
+package scraper.engine;
 
 import com.gistlabs.mechanize.MechanizeAgent;
 import com.gistlabs.mechanize.document.html.HtmlDocument;
@@ -31,11 +31,10 @@ public class Scraper {
         return normalizedXml;
     }
 
-    public static String normalizeXml(String xml) {
+    private static String normalizeXml(String xml) {
         String oneLineXml = xml.replaceAll("&nbsp;", "");
         List<String> words = new ArrayList<>();
         Collections.addAll(words, oneLineXml.split("\n"));
         return words.stream().map(String::trim).collect(joining(""));
     }
-
 }
