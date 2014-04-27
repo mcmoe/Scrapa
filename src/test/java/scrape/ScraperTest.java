@@ -85,13 +85,11 @@ public class ScraperTest {
 
     private class TeamGoalsVisitorTest implements  TeamGoalsVisitor {
 
-        int uniqueRank = 0;
         @Override
         public void visit(TeamGoals teamGoals) {
             LOGGER.info(teamGoals.toString());
             teamGoalsVisits++;
-            assertEquals(++uniqueRank, teamGoals.getRank());
-            // or addTeamGoalsRow (rank, teamName, teamGoals) :)
+            // or addTeamGoalsRow (teamName, teamGoals) :)
         }
     }
 }

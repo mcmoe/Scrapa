@@ -12,21 +12,19 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TeamGoalsTest {
 
-    private static final int RANK = 1;
     private static final String MANCHESTER_UNITED = "Manchester United";
     private static final int GOALS = 123;
 
     @Test
     public void test_create_team_goals() {
-        TeamGoals teamGoals = new TeamGoals(RANK, MANCHESTER_UNITED, GOALS);
+        TeamGoals teamGoals = new TeamGoals(MANCHESTER_UNITED, GOALS);
         assertNotNull(teamGoals);
     }
 
     @Test
     public void test_team_goals_getters_consistency() {
-        TeamGoals teamGoals = new TeamGoals(RANK, MANCHESTER_UNITED, GOALS);
+        TeamGoals teamGoals = new TeamGoals(MANCHESTER_UNITED, GOALS);
 
-        assertEquals(RANK, teamGoals.getRank());
         assertEquals(MANCHESTER_UNITED, teamGoals.getTeam());
         assertEquals(GOALS, teamGoals.getGoals());
     }
