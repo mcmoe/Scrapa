@@ -37,7 +37,6 @@ import static java.util.stream.Collectors.joining;
 public class Scraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scraper.class);
-    private static Integer latestRank;
 
     public static NodeList parseRows(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document doc = parseTable(tableXml);
@@ -73,12 +72,12 @@ public class Scraper {
         return textCell.getTextContent().trim();
     }
 
-    private static TopScorer buildTopScorer(String rank, String player, String team, String goals) {
+    private static TopScorer buildTopScorer(String player, String team, String goals) {
         TopScorer topScorer = null;
         try {
-            topScorer = new TopScorer(Integer.valueOf(rank), player, team, Integer.valueOf(goals));
+            topScorer = new TopScorer(player, team, Integer.valueOf(goals));
         } catch (NumberFormatException e) {
-            LOGGER.error(" -- " + rank + " - " + player + " - " + team + " - " + goals + " -- ", e);
+            LOGGER.error(" -- " + player + " - " + team + " - " + goals + " -- ", e);
         }
 
         return topScorer;
@@ -90,15 +89,13 @@ public class Scraper {
 
     static void parseAndVisit(String tableXml, TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
         NodeList rows = parseRows(tableXml);
-        latestRank = 1;
         for(int i = 0; i < rows.getLength(); ++i) {
-            Node rankCell = rows.item(i);
-            String rank = inheritRankIfEmpty(rankCell);
+            Node indexCell = rows.item(i);
 
-            Node delimiterCell = visitTopScorer(topScorersVisitor, rankCell, rank);
+            Optional<Node> delimiterCell = visitTopScorer(topScorersVisitor, indexCell);
 
-            if(delimiterCell != null) {
-                visitTeamGoals(teamGoalsVisitor, delimiterCell);
+            if(delimiterCell.isPresent()) {
+                visitTeamGoals(teamGoalsVisitor, delimiterCell.get());
             }
         }
     }
@@ -112,27 +109,16 @@ public class Scraper {
         teamGoalsVisitor.visit(teamGoals);
     }
 
-    private static Node visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell, String rank) {
+    private static Optional<Node> visitTopScorer(TopScorersVisitor topScorersVisitor, Node delimiterCell) {
         Node playerNameCell = delimiterCell.getNextSibling();
         Node playerTeamCell = playerNameCell.getNextSibling();
         Node playerGoalsCell = playerTeamCell.getNextSibling();
 
-        TopScorer topScorer = buildTopScorer(rank, cellToString(playerNameCell),
+        TopScorer topScorer = buildTopScorer(cellToString(playerNameCell),
                                              cellToString(playerTeamCell), cellToString(playerGoalsCell));
         topScorersVisitor.visit(topScorer);
 
-        return playerGoalsCell.getNextSibling();
-    }
-
-    private static String inheritRankIfEmpty(Node rankCell) {
-        String rank = cellToString(rankCell);
-
-        if(rank.isEmpty()) {
-            return latestRank.toString();
-        } else {
-            latestRank = Integer.valueOf(rank);
-        }
-        return rank;
+        return Optional.ofNullable(playerGoalsCell.getNextSibling());
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */

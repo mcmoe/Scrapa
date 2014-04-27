@@ -22,7 +22,6 @@ public class H2TopScorerTest {
     private static final String WAYNE_ROONEY = "Wayne Rooney";
     private static final String MANCHESTER_UNITED = "Manchester United";
     private static final int GOALS = 66;
-    private static final int RANK = 1;
 
     @After
     public void tearDown() {
@@ -55,13 +54,12 @@ public class H2TopScorerTest {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+            assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
             List<TopScorer> tops = H2TopScorer.getTopScorers(connection);
             assertEquals(1, tops.size());
             TopScorer topScorer = tops.get(0);
 
-            assertEquals(RANK, topScorer.getRank());
             assertEquals(WAYNE_ROONEY, topScorer.getPlayer());
             assertEquals(MANCHESTER_UNITED, topScorer.getTeam());
             assertEquals(GOALS, topScorer.getGoals());
@@ -76,16 +74,16 @@ public class H2TopScorerTest {
     public void test_top_scorer_add_duplicate() throws SQLException {
         @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
         H2TopScorer.createTopScorersTable(connection);
-        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
-        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
     }
 
     @Test(expected = SQLException.class)
     public void test_top_scorer_add_primary_key_duplicate() throws SQLException {
         @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
         H2TopScorer.createTopScorersTable(connection);
-        H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
-        H2TopScorer.addTopScorer(connection, RANK+1, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
+        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
     }
 
     @Test
@@ -93,7 +91,7 @@ public class H2TopScorerTest {
         try {
             @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, RANK, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+            assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
             assertEquals(1, H2TopScorer.deleteTopScorers(connection));
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered !", e);
@@ -103,14 +101,15 @@ public class H2TopScorerTest {
 
     private void assertResultSetMetaData(ResultSet topScores) throws SQLException {
         ResultSetMetaData metaData = topScores.getMetaData();
-        assertEquals(4, metaData.getColumnCount());
-        assertEquals("RANK", metaData.getColumnName(1));
-        assertEquals("INTEGER", metaData.getColumnTypeName(1));
-        assertEquals("PLAYER", metaData.getColumnName(2));
+        assertEquals(3, metaData.getColumnCount());
+
+        assertEquals("PLAYER", metaData.getColumnName(1));
+        assertEquals("VARCHAR", metaData.getColumnTypeName(1));
+
+        assertEquals("TEAM", metaData.getColumnName(2));
         assertEquals("VARCHAR", metaData.getColumnTypeName(2));
-        assertEquals("TEAM", metaData.getColumnName(3));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(3));
-        assertEquals("GOALS", metaData.getColumnName(4));
-        assertEquals("INTEGER", metaData.getColumnTypeName(4));
+
+        assertEquals("GOALS", metaData.getColumnName(3));
+        assertEquals("INTEGER", metaData.getColumnTypeName(3));
     }
 }

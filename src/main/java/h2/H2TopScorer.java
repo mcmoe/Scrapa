@@ -31,19 +31,18 @@ public class H2TopScorer {
         List<TopScorer> topScorers = new ArrayList<>();
 
         while(resultSet.next()) {
-            topScorers.add(new TopScorer(resultSet.getInt(1), resultSet.getString(2),
-                            resultSet.getString(3), resultSet.getInt(4)));
+            topScorers.add(new TopScorer(resultSet.getString(1),
+                            resultSet.getString(2), resultSet.getInt(3)));
         }
 
         return topScorers;
     }
 
-    static int addTopScorer(Connection connection, int rank, String player, String team, int goals) throws SQLException {
+    static int addTopScorer(Connection connection, String player, String team, int goals) throws SQLException {
         @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
-        addTopScorerStatement.setInt(1, rank);
-        addTopScorerStatement.setString(2, player);
-        addTopScorerStatement.setString(3, team);
-        addTopScorerStatement.setInt(4, goals);
+        addTopScorerStatement.setString(1, player);
+        addTopScorerStatement.setString(2, team);
+        addTopScorerStatement.setInt(3, goals);
         return addTopScorerStatement.executeUpdate();
     }
 

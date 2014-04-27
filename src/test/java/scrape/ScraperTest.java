@@ -79,7 +79,7 @@ public class ScraperTest {
         public void visit(TopScorer topScorer) {
             LOGGER.info(topScorer.toString());
             topScorerVisits++;
-            // or addTopScorersRow(rank, playerName, playerTeam, playerGoals) :)
+            // or addTopScorersRow(playerName, playerTeam, playerGoals) :)
         }
     }
 
