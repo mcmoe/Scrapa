@@ -103,13 +103,13 @@ public class H2TopScorerTest {
         ResultSetMetaData metaData = topScores.getMetaData();
         assertEquals(3, metaData.getColumnCount());
 
-        assertEquals("PLAYER", metaData.getColumnName(1));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(1));
+        assertEquals("PLAYER", metaData.getColumnName(TopScorersSQL.COLUMNS.PLAYER.index()));
+        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.PLAYER.index()));
 
-        assertEquals("TEAM", metaData.getColumnName(2));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(2));
+        assertEquals("TEAM", metaData.getColumnName(TopScorersSQL.COLUMNS.TEAM.index()));
+        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.TEAM.index()));
 
-        assertEquals("GOALS", metaData.getColumnName(3));
-        assertEquals("INTEGER", metaData.getColumnTypeName(3));
+        assertEquals("GOALS", metaData.getColumnName(TopScorersSQL.COLUMNS.GOALS.index()));
+        assertEquals("INTEGER", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.GOALS.index()));
     }
 }

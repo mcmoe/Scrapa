@@ -11,6 +11,20 @@ public class TopScorersSQL {
     private static final String TEAM = "TEAM";
     private static final String GOALS = "GOALS";
 
+    enum COLUMNS {
+        PLAYER(1),
+        TEAM(2),
+        GOALS(3);
+
+        private final int index;
+        COLUMNS(int index) {
+            this.index = index;
+        }
+        public int index() {
+            return index;
+        }
+    }
+
     static final String
             ADD_TOP_SCORER =
             "INSERT INTO " + TOP_SCORERS + " (" + PLAYER + ", " + TEAM + ", " + GOALS + ") VALUES (?,?,?)";

@@ -40,9 +40,9 @@ public class H2TopScorer {
 
     static int addTopScorer(Connection connection, String player, String team, int goals) throws SQLException {
         @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
-        addTopScorerStatement.setString(1, player);
-        addTopScorerStatement.setString(2, team);
-        addTopScorerStatement.setInt(3, goals);
+        addTopScorerStatement.setString(TopScorersSQL.COLUMNS.PLAYER.index(), player);
+        addTopScorerStatement.setString(TopScorersSQL.COLUMNS.TEAM.index(), team);
+        addTopScorerStatement.setInt(TopScorersSQL.COLUMNS.GOALS.index(), goals);
         return addTopScorerStatement.executeUpdate();
     }
 
