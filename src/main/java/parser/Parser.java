@@ -28,41 +28,46 @@ import java.util.Optional;
 public class Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
+    private String tableXml;
 
-    public static void parseAndVisit(String tableXml, TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        visitTopScorers(tableXml, topScorersVisitor);
-        visitTeamGoals(tableXml, teamGoalsVisitor);
+    public Parser(String tableXml) {
+        this.tableXml = tableXml;
     }
 
-    private static void visitTeamGoals(String tableXml, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        NodeList teamRows = parseTeamGoals(tableXml);
+    public void parseAndVisit(TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+        visitTopScorers(topScorersVisitor);
+        visitTeamGoals(teamGoalsVisitor);
+    }
+
+    private void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        NodeList teamRows = parseTeamGoals();
         for(int i = 0; i < teamRows.getLength(); ++i) {
             visitTeamGoals(teamGoalsVisitor, teamRows.item(i));
         }
         teamGoalsVisitor.onExit();
     }
 
-    private static void visitTopScorers(String tableXml, TopScorersVisitor topScorersVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        NodeList playerRows = parseTopScorers(tableXml);
+    private void visitTopScorers(TopScorersVisitor topScorersVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        NodeList playerRows = parseTopScorers();
         for(int i = 0; i < playerRows.getLength(); ++i) {
             visitTopScorer(topScorersVisitor, playerRows.item(i));
         }
         topScorersVisitor.onExit();
     }
 
-    private static NodeList parseTopScorers(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        Document doc = parseTable(tableXml);
+    private NodeList parseTopScorers() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document doc = parseTable();
         XPath xPath = XPathFactory.newInstance().newXPath();
         return (NodeList) xPath.evaluate("/tbody/tr/th [@class='NRW']", doc, XPathConstants.NODESET);
     }
 
-    private static NodeList parseTeamGoals(String tableXml) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        Document doc = parseTable(tableXml);
+    private NodeList parseTeamGoals() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document doc = parseTable();
         XPath xPath = XPathFactory.newInstance().newXPath();
         return (NodeList) xPath.evaluate("/tbody/tr/td [@class='TMN']", doc, XPathConstants.NODESET);
     }
 
-    private static Document parseTable(String tableXml) throws ParserConfigurationException, SAXException, IOException {
+    private Document parseTable() throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         InputSource is = new InputSource();
@@ -70,7 +75,7 @@ public class Parser {
         return builder.parse(is);
     }
 
-    private static void visitTopScorer(TopScorersVisitor topScorersVisitor, Node indexCell) {
+    private void visitTopScorer(TopScorersVisitor topScorersVisitor, Node indexCell) {
         Node playerNameCell = indexCell.getNextSibling();
         Node playerTeamCell = playerNameCell.getNextSibling();
         Node playerGoalsCell = playerTeamCell.getNextSibling();
@@ -80,7 +85,7 @@ public class Parser {
         topScorersVisitor.onRow(topScorer);
     }
 
-    private static void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node teamNameCell) {
+    private void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor, Node teamNameCell) {
         Node teamGoalsCell = teamNameCell.getNextSibling();
 
         TeamGoals teamGoals = buildTeamGoals(cellToString(teamNameCell),

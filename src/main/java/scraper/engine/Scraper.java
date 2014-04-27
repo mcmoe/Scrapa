@@ -7,9 +7,7 @@ import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 
@@ -21,7 +19,27 @@ public class Scraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scraper.class);
 
-    public static String scrapeWeb(String relativePath) {
+    private Set<String> relativePaths;
+    private Iterator<String> iterator;
+
+    public Scraper(Set<String> relativePaths) {
+        this.relativePaths = relativePaths;
+        this.iterator = relativePaths.iterator();
+    }
+
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    public String scrapeNext() {
+        return scrapeWeb(iterator.next());
+    }
+
+    public Set<String> getRelativePaths() {
+        return relativePaths;
+    }
+
+    private static String scrapeWeb(String relativePath) {
         String season = "http://www.free-elements.com/" + relativePath;
         MechanizeAgent agent = new MechanizeAgent();
         HtmlDocument page = agent.get(season);
