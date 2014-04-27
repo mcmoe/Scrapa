@@ -1,4 +1,4 @@
-package scrape;
+package scraper;
 
 import model.TopScorer;
 

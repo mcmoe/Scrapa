@@ -1,4 +1,4 @@
-package scrape;
+package scraper;
 
 import com.gistlabs.mechanize.MechanizeAgent;
 import com.gistlabs.mechanize.document.html.HtmlDocument;

@@ -1,4 +1,4 @@
-package scrape;
+package scraper;
 
 import lombok.Cleanup;
 import model.TeamGoals;
@@ -21,7 +21,7 @@ import java.util.List;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static scrape.Scraper.normalizeXml;
+import static scraper.Scraper.normalizeXml;
 
 
 /**
