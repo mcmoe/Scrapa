@@ -1,6 +1,20 @@
-java-8
+Scrapa!
 ======
 
-Testing Java 8 with Gradle, lombok, h2, jooq, and simple web scraping
+Stared off as an attempt at testing Java 8 with Gradle...
 
-- also tested: mechanize (html helper), Optional<> Wrapper, JDBC API, XML Parsing and SLF4J + LOG4J
+###Now, it is a WIP at web scraping football data with the goal of  building a query-able database###
+
+####Some of the stuff used in this project:####
+
+- java 8 stream API
+- gradle
+- mechanize
+- lombok
+- H2
+- JOOQ
+- JDBC API
+- XML Parsing
+- SLF4J + LOG4J
+
+If you're interested in learning about these tools and API's in a simple project, now is your chance :)
