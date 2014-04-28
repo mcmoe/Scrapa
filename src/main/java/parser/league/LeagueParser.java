@@ -38,12 +38,7 @@ public class LeagueParser {
         xPath = XPathFactory.newInstance().newXPath();
     }
 
-    public void parseAndVisit(TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        visitTopScorers(topScorersVisitor);
-        visitTeamGoals(teamGoalsVisitor);
-    }
-
-    private void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public void visitTeamGoals(TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         NodeList teamRows = parseTeamGoals();
         for(int i = 0; i < teamRows.getLength(); ++i) {
             visitTeamGoals(teamGoalsVisitor, teamRows.item(i));
@@ -51,7 +46,7 @@ public class LeagueParser {
         teamGoalsVisitor.onExit();
     }
 
-    private void visitTopScorers(TopScorersVisitor topScorersVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public void visitTopScorers(TopScorersVisitor topScorersVisitor) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         NodeList playerRows = parseTopScorers();
         for(int i = 0; i < playerRows.getLength(); ++i) {
             visitTopScorer(topScorersVisitor, playerRows.item(i));

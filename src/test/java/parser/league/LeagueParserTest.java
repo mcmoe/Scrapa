@@ -27,19 +27,22 @@ public class LeagueParserTest {
     @Test
     public void test_parse_and_visit_mock_2013() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/S2013.html", "scraped2013Table");
-        leagueParser.parseAndVisit(new TopScorersVisitorTest(21), new TeamGoalsVisitorTest(20));
+        leagueParser.visitTopScorers(new TopScorersVisitorTest(21));
+        leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
     }
 
     @Test
     public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S2012.html", "scraped2012Table");
-        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
+        leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
+        leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
     }
 
     @Test
     public void test_parse_and_visit_mock_1986() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S1986.html", "scraped1986Table");
-        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(22));
+        leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
+        leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(22));
     }
 
     @Test(expected = NullPointerException.class)
