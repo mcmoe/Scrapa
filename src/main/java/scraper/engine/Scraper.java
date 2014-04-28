@@ -21,10 +21,12 @@ public class Scraper {
 
     private Set<String> relativePaths;
     private Iterator<String> iterator;
+    private static MechanizeAgent mechanizeAgent;
 
     public Scraper(Set<String> relativePaths) {
         this.relativePaths = relativePaths;
         this.iterator = relativePaths.iterator();
+        mechanizeAgent = new MechanizeAgent();
     }
 
     public boolean hasNext() {
@@ -41,8 +43,7 @@ public class Scraper {
 
     private static String scrapeWeb(String relativePath) {
         String season = "http://www.free-elements.com/" + relativePath;
-        MechanizeAgent agent = new MechanizeAgent();
-        HtmlDocument page = agent.get(season);
+        HtmlDocument page = mechanizeAgent.get(season);
         HtmlElement table = page.htmlElements().get(HtmlQueryBuilder.byTag("tbody"));
         String normalizedXml = normalizeXml(table.toString());
         LOGGER.info(normalizedXml);

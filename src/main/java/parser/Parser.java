@@ -29,9 +29,12 @@ public class Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
     private String tableXml;
+    private Document document;
+    private XPath xPath;
 
     public Parser(String tableXml) {
         this.tableXml = tableXml;
+        xPath = XPathFactory.newInstance().newXPath();
     }
 
     public void parseAndVisit(TopScorersVisitor topScorersVisitor, TeamGoalsVisitor teamGoalsVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
@@ -56,15 +59,22 @@ public class Parser {
     }
 
     private NodeList parseTopScorers() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        Document doc = parseTable();
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        return (NodeList) xPath.evaluate("/tbody/tr/th [@class='NRW']", doc, XPathConstants.NODESET);
+        return filterNodes("/tbody/tr/th [@class='NRW']");
     }
 
     private NodeList parseTeamGoals() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        Document doc = parseTable();
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        return (NodeList) xPath.evaluate("/tbody/tr/td [@class='TMN']", doc, XPathConstants.NODESET);
+        return filterNodes("/tbody/tr/td [@class='TMN']");
+    }
+
+    private NodeList filterNodes(String expression) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        setupDocument();
+        return (NodeList) xPath.evaluate(expression, document, XPathConstants.NODESET);
+    }
+
+    private synchronized void setupDocument() throws ParserConfigurationException, SAXException, IOException {
+        if(document == null) {
+            document = parseTable();
+        }
     }
 
     private Document parseTable() throws ParserConfigurationException, SAXException, IOException {
@@ -102,14 +112,7 @@ public class Parser {
     }
 
     private static TopScorer buildTopScorer(String player, String team, String goals) {
-        TopScorer topScorer = null;
-        try {
-            topScorer = new TopScorer(player, team, Integer.valueOf(goals));
-        } catch (NumberFormatException e) {
-            LOGGER.error("--" + player + "-" + team + "-" + goals + "--", e);
-        }
-
-        return topScorer;
+        return new TopScorer(player, team, Integer.valueOf(goals));
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */
