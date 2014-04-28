@@ -1,5 +1,6 @@
 package h2;
 
+import h2.sql.TopScorersSQL;
 import lombok.Cleanup;
 import model.TopScorer;
 
@@ -31,8 +32,9 @@ public class H2TopScorer {
         List<TopScorer> topScorers = new ArrayList<>();
 
         while(resultSet.next()) {
-            topScorers.add(new TopScorer(resultSet.getString(1),
-                            resultSet.getString(2), resultSet.getInt(3)));
+            topScorers.add(new TopScorer(resultSet.getString(TopScorersSQL.COLUMNS.PLAYER.index()),
+                            resultSet.getString(TopScorersSQL.COLUMNS.TEAM.index()),
+                            resultSet.getInt(TopScorersSQL.COLUMNS.GOALS.index())));
         }
 
         return topScorers;

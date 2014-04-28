@@ -1,4 +1,4 @@
-package h2;
+package h2.sql;
 
 /**
  * SQL statements for TOP_SCORERS Table
@@ -11,7 +11,7 @@ public class TopScorersSQL {
     private static final String TEAM = "TEAM";
     private static final String GOALS = "GOALS";
 
-    enum COLUMNS {
+    public enum COLUMNS {
         PLAYER(1),
         TEAM(2),
         GOALS(3);
@@ -25,19 +25,19 @@ public class TopScorersSQL {
         }
     }
 
-    static final String
+    public static final String
             ADD_TOP_SCORER =
             "INSERT INTO " + TOP_SCORERS + " (" + PLAYER + ", " + TEAM + ", " + GOALS + ") VALUES (?,?,?)";
-    static final String
+    public static final String
             CREATE_TOP_SCORERS_TABLE =
             "CREATE TABLE IF NOT EXISTS " + TOP_SCORERS + "("
                     + PLAYER + " VARCHAR(255), " + TEAM + " VARCHAR(255), " + GOALS + " INT, "
                     + "PRIMARY KEY (PLAYER, TEAM)"
                     + ")";
-    static final String
+    public static final String
             GET_TOP_SCORERS =
             "SELECT * FROM " + TOP_SCORERS;
-    static final String
+    public static final String
             DELETE_TOP_SCORERS =
             "DELETE FROM " + TOP_SCORERS;
 }

@@ -1,5 +1,6 @@
 package h2;
 
+import h2.sql.TopScorersSQL;
 import lombok.Cleanup;
 import model.TopScorer;
 import org.junit.After;
