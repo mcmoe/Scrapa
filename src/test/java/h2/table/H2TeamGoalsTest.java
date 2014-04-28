@@ -42,7 +42,7 @@ public class H2TeamGoalsTest {
             @Cleanup Connection connection = h2MemoryServer.getConnection();
             H2TeamGoals.deleteTeamGoals(connection);
         } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered on tear down!", e);
+            LOGGER.error("SQL Exception encountered on reset table!", e);
             fail("SQL Exception on tear down - check logs");
         }
     }
@@ -57,7 +57,7 @@ public class H2TeamGoalsTest {
             @Cleanup ResultSet teamGoals = H2TeamGoals.getTeamGoals(statement);
             assertResultSetMetaData(teamGoals);
         } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
+            LOGGER.error("SQL Exception encountered!", e);
             fail("SQL Exception - check logs");
         }
     }
