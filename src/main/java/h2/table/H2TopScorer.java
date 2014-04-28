@@ -1,7 +1,7 @@
 package h2.table;
 
 import h2.connection.H2Utils;
-import h2.sql.TopScorersSQL;
+import h2.sql.TopScorerSQL;
 import lombok.Cleanup;
 import model.TopScorer;
 
@@ -16,26 +16,26 @@ import java.util.List;
 public class H2TopScorer {
     static void createTopScorersTable(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
-        statement.execute(TopScorersSQL.CREATE_TOP_SCORERS_TABLE);
+        statement.execute(TopScorerSQL.CREATE_TOP_SCORERS_TABLE);
     }
 
     static PreparedStatement prepareAddTopScorersStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement(TopScorersSQL.ADD_TOP_SCORER);
+        return connection.prepareStatement(TopScorerSQL.ADD_TOP_SCORER);
     }
 
     static ResultSet getTopScorers(Statement statement) throws SQLException {
-        return statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
+        return statement.executeQuery(TopScorerSQL.GET_TOP_SCORERS);
     }
 
     public static List<TopScorer> getTopScorers(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
-        ResultSet resultSet = statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
+        ResultSet resultSet = statement.executeQuery(TopScorerSQL.GET_TOP_SCORERS);
         List<TopScorer> topScorers = new ArrayList<>();
 
         while(resultSet.next()) {
-            topScorers.add(new TopScorer(resultSet.getString(TopScorersSQL.COLUMNS.PLAYER.index()),
-                            resultSet.getString(TopScorersSQL.COLUMNS.TEAM.index()),
-                            resultSet.getInt(TopScorersSQL.COLUMNS.GOALS.index())));
+            topScorers.add(new TopScorer(resultSet.getString(TopScorerSQL.COLUMNS.PLAYER.index()),
+                            resultSet.getString(TopScorerSQL.COLUMNS.TEAM.index()),
+                            resultSet.getInt(TopScorerSQL.COLUMNS.GOALS.index())));
         }
 
         return topScorers;
@@ -43,14 +43,14 @@ public class H2TopScorer {
 
     static int addTopScorer(Connection connection, String player, String team, int goals) throws SQLException {
         @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
-        addTopScorerStatement.setString(TopScorersSQL.COLUMNS.PLAYER.index(), player);
-        addTopScorerStatement.setString(TopScorersSQL.COLUMNS.TEAM.index(), team);
-        addTopScorerStatement.setInt(TopScorersSQL.COLUMNS.GOALS.index(), goals);
+        addTopScorerStatement.setString(TopScorerSQL.COLUMNS.PLAYER.index(), player);
+        addTopScorerStatement.setString(TopScorerSQL.COLUMNS.TEAM.index(), team);
+        addTopScorerStatement.setInt(TopScorerSQL.COLUMNS.GOALS.index(), goals);
         return addTopScorerStatement.executeUpdate();
     }
 
     static int deleteTopScorers(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
-        return statement.executeUpdate(TopScorersSQL.DELETE_TOP_SCORERS);
+        return statement.executeUpdate(TopScorerSQL.DELETE_TOP_SCORERS);
     }
 }

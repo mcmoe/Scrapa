@@ -10,7 +10,7 @@ import model.TopScorer;
  * when the scraping is complete
  * Created by mcmoe on 4/26/2014.
  */
-public interface TopScorersVisitor {
+public interface TopScorerVisitor {
     void onRow(TopScorer topScorer);
     void onExit();
 }

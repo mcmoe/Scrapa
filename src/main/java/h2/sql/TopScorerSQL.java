@@ -4,7 +4,7 @@ package h2.sql;
  * SQL statements for TOP_SCORERS Table
  * Created by mcmoe on 4/25/2014.
  */
-public class TopScorersSQL {
+public class TopScorerSQL {
 
     private static final String TOP_SCORERS = "TOP_SCORERS";
     private static final String PLAYER = "PLAYER";

@@ -2,7 +2,7 @@ package h2.table;
 
 import h2.connection.H2MemoryServer;
 import h2.connection.H2Utils;
-import h2.sql.TopScorersSQL;
+import h2.sql.TopScorerSQL;
 import lombok.Cleanup;
 import model.TopScorer;
 import org.junit.After;
@@ -122,13 +122,13 @@ public class H2TopScorerTest {
         ResultSetMetaData metaData = topScores.getMetaData();
         assertEquals(3, metaData.getColumnCount());
 
-        assertEquals("PLAYER", metaData.getColumnName(TopScorersSQL.COLUMNS.PLAYER.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.PLAYER.index()));
+        assertEquals("PLAYER", metaData.getColumnName(TopScorerSQL.COLUMNS.PLAYER.index()));
+        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.PLAYER.index()));
 
-        assertEquals("TEAM", metaData.getColumnName(TopScorersSQL.COLUMNS.TEAM.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.TEAM.index()));
+        assertEquals("TEAM", metaData.getColumnName(TopScorerSQL.COLUMNS.TEAM.index()));
+        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.TEAM.index()));
 
-        assertEquals("GOALS", metaData.getColumnName(TopScorersSQL.COLUMNS.GOALS.index()));
-        assertEquals("INTEGER", metaData.getColumnTypeName(TopScorersSQL.COLUMNS.GOALS.index()));
+        assertEquals("GOALS", metaData.getColumnName(TopScorerSQL.COLUMNS.GOALS.index()));
+        assertEquals("INTEGER", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.GOALS.index()));
     }
 }

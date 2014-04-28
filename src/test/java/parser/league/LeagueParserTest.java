@@ -28,7 +28,7 @@ public class LeagueParserTest {
     @Test
     public void test_parse_and_visit_mock_2013() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/S2013.html", "scraped2013Table");
-        leagueParser.visitTopScorers(new TopScorersVisitorTest(21));
+        leagueParser.visitTopScorers(new TopScorerVisitorTest(21));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
         leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(20));
     }
@@ -36,7 +36,7 @@ public class LeagueParserTest {
     @Test
     public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S2012.html", "scraped2012Table");
-        leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
+        leagueParser.visitTopScorers(new TopScorerVisitorTest(20));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
         leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(20));
     }
@@ -44,7 +44,7 @@ public class LeagueParserTest {
     @Test
     public void test_parse_and_visit_mock_1986() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S1986.html", "scraped1986Table");
-        leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
+        leagueParser.visitTopScorers(new TopScorerVisitorTest(20));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(22));
         leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(22));
     }
@@ -58,12 +58,12 @@ public class LeagueParserTest {
         return new LeagueParser(LeagueScraperMocker.getMockedData(season, scrapedTable));
     }
 
-    private class TopScorersVisitorTest implements TopScorersVisitor {
+    private class TopScorerVisitorTest implements TopScorerVisitor {
         private final int expectedVisits;
         /* using list to preserve order */
         private List<TopScorer> all = new ArrayList<>();
 
-        public TopScorersVisitorTest(int expectedVisits) {
+        public TopScorerVisitorTest(int expectedVisits) {
             this.expectedVisits = expectedVisits;
         }
 
