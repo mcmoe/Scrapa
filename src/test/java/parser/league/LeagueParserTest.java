@@ -1,5 +1,6 @@
 package parser.league;
 
+import model.LeagueStanding;
 import model.TeamGoals;
 import model.TopScorer;
 import org.junit.Test;
@@ -29,6 +30,7 @@ public class LeagueParserTest {
         LeagueParser leagueParser = getLeagueParser("England/S2013.html", "scraped2013Table");
         leagueParser.visitTopScorers(new TopScorersVisitorTest(21));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
+        leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(20));
     }
 
     @Test
@@ -36,6 +38,7 @@ public class LeagueParserTest {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S2012.html", "scraped2012Table");
         leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(20));
+        leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(20));
     }
 
     @Test
@@ -43,6 +46,7 @@ public class LeagueParserTest {
         LeagueParser leagueParser = getLeagueParser("England/Seasons/S1986.html", "scraped1986Table");
         leagueParser.visitTopScorers(new TopScorersVisitorTest(20));
         leagueParser.visitTeamGoals(new TeamGoalsVisitorTest(22));
+        leagueParser.visitLeagueStandings(new LeagueStandingVisitorTest(22));
     }
 
     @Test(expected = NullPointerException.class)
@@ -102,6 +106,30 @@ public class LeagueParserTest {
                 LOGGER.info(t.toString());
             }
             // or addTeamGoalsRow (teamName, teamGoals) :)
+        }
+    }
+    private class LeagueStandingVisitorTest implements LeagueStandingVisitor {
+        private final int expectedVisits;
+        /* using list to preserve order */
+        private List<LeagueStanding> all = new ArrayList<>();
+
+        public LeagueStandingVisitorTest(int expectedVisits) {
+            this.expectedVisits = expectedVisits;
+        }
+
+        @Override
+        public void onRow(LeagueStanding leagueStanding) {
+            all.add(leagueStanding);
+        }
+
+        @Override
+        public void onExit() {
+            int leagueStandingVisits = all.size();
+            assertEquals("Expecting " + expectedVisits + " standings!", expectedVisits, leagueStandingVisits);
+            for(LeagueStanding t : all) {
+                LOGGER.info(t.toString());
+            }
+            // or addLeagueStandingRow (teamName, standing) :)
         }
     }
 }

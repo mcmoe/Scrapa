@@ -1,5 +1,6 @@
 package parser.league;
 
+import model.LeagueStanding;
 import model.TeamGoals;
 import model.TopScorer;
 import org.slf4j.Logger;
@@ -54,11 +55,23 @@ public class LeagueParser {
         topScorersVisitor.onExit();
     }
 
+    public void visitLeagueStandings(LeagueStandingVisitor leagueStandingVisitor) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+        NodeList teamRows = parseLeagueStandings();
+        for(int i = 0; i < teamRows.getLength(); ++i) {
+            visitLeagueStanding(leagueStandingVisitor, teamRows.item(i), i+1);
+        }
+        leagueStandingVisitor.onExit();
+    }
+
     private NodeList parseTopScorers() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         return filterNodes("/tbody/tr/th [@class='NRW']");
     }
 
     private NodeList parseTeamGoals() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        return filterNodes("/tbody/tr/td [@class='TMN']");
+    }
+
+    private NodeList parseLeagueStandings() throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
         return filterNodes("/tbody/tr/td [@class='TMN']");
     }
 
@@ -99,6 +112,11 @@ public class LeagueParser {
         teamGoalsVisitor.onRow(teamGoals);
     }
 
+    private void visitLeagueStanding(LeagueStandingVisitor visitor, Node teamNameCell, int standing) {
+        LeagueStanding leagueStanding = buildLeagueStanding(cellToString(teamNameCell), standing);
+        visitor.onRow(leagueStanding);
+    }
+
     private static String cellToString(Node textCell) {
         return textCell.getTextContent().trim();
     }
@@ -109,6 +127,10 @@ public class LeagueParser {
 
     private static TopScorer buildTopScorer(String player, String team, String goals) {
         return new TopScorer(player, team, Integer.valueOf(goals));
+    }
+
+    private static LeagueStanding buildLeagueStanding(String team, int standing) {
+        return new LeagueStanding(team, standing);
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */
