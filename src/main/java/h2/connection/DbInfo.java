@@ -1,4 +1,4 @@
-package h2;
+package h2.connection;
 
 /**
  * Information repo for H2 Database

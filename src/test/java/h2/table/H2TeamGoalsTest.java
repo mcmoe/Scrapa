@@ -1,5 +1,6 @@
-package h2;
+package h2.table;
 
+import h2.connection.H2Server;
 import h2.sql.TeamGoalsSQL;
 import lombok.Cleanup;
 import model.TeamGoals;

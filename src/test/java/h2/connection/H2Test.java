@@ -1,4 +1,4 @@
-package h2;
+package h2.connection;
 
 import lombok.Cleanup;
 import org.junit.Test;
