@@ -1,4 +1,4 @@
-package parser;
+package parser.league;
 
 import lombok.Cleanup;
 import model.TeamGoals;
@@ -25,36 +25,36 @@ import static org.junit.Assert.assertEquals;
  * The mocks were built from output returned by launching the scraping manually
  * Created by mcmoe on 4/27/2014.
  */
-public class ParserTest {
+public class LeagueParserTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParserTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeagueParserTest.class);
     @Test
     public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock("scraped2012Table");
         LOGGER.info(tableXml);
-        Parser parser = new Parser(tableXml);
-        parser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
+        LeagueParser leagueParser = new LeagueParser(tableXml);
+        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
     }
 
     @Test
     public void test_parse_and_visit_mock_2013() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock("scraped2013Table");
         LOGGER.info(tableXml);
-        Parser parser = new Parser(tableXml);
-        parser.parseAndVisit(new TopScorersVisitorTest(21), new TeamGoalsVisitorTest(20));
+        LeagueParser leagueParser = new LeagueParser(tableXml);
+        leagueParser.parseAndVisit(new TopScorersVisitorTest(21), new TeamGoalsVisitorTest(20));
     }
 
     @Test
     public void test_parse_and_visit_mock_1986() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
         String tableXml = scrapeMock("scraped1986Table");
         LOGGER.info(tableXml);
-        Parser parser = new Parser(tableXml);
-        parser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(22));
+        LeagueParser leagueParser = new LeagueParser(tableXml);
+        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(22));
     }
 
     @Test(expected = NullPointerException.class)
     public void s() {
-        Parser.logRows(null);
+        LeagueParser.logRows(null);
     }
 
     private String scrapeMock(String scrapedTable) throws IOException {

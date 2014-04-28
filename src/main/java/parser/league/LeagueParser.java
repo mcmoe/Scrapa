@@ -1,4 +1,4 @@
-package parser;
+package parser.league;
 
 import model.TeamGoals;
 import model.TopScorer;
@@ -22,17 +22,17 @@ import java.io.StringReader;
 import java.util.Optional;
 
 /**
- * Parser top scorer and team goals information from scraped free-elements data
+ * LeagueParser top scorer and team goals information from scraped free-elements data
  * Created by mcmoe on 4/27/2014.
  */
-public class Parser {
+public class LeagueParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeagueParser.class);
     private String tableXml;
     private Document document;
     private XPath xPath;
 
-    public Parser(String tableXml) {
+    public LeagueParser(String tableXml) {
         this.tableXml = tableXml;
         xPath = XPathFactory.newInstance().newXPath();
     }

@@ -1,10 +1,10 @@
-package parser;
+package parser.league;
 
 import model.TeamGoals;
 
 /**
  * Interface to be used as call back.
- * The Scraper class will accept implementations
+ * The LeagueScraper class will accept implementations
  * allowing visits per scraped row
  * Finally, the visitor is called with onExit
  * when the scraping is complete

@@ -1,4 +1,4 @@
-package scraper.engine;
+package scraper.engine.league;
 
 import com.gistlabs.mechanize.MechanizeAgent;
 import com.gistlabs.mechanize.document.html.HtmlDocument;
@@ -15,15 +15,15 @@ import static java.util.stream.Collectors.joining;
  * Scrapes season team goals and top scorers information from free-elements
  * Created by mcmoe on 4/26/2014.
  */
-public class Scraper {
+public class LeagueScraper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Scraper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeagueScraper.class);
 
     private Set<String> relativePaths;
     private Iterator<String> iterator;
     private static MechanizeAgent mechanizeAgent;
 
-    public Scraper(Set<String> relativePaths) {
+    public LeagueScraper(Set<String> relativePaths) {
         this.relativePaths = relativePaths;
         this.iterator = relativePaths.iterator();
         mechanizeAgent = new MechanizeAgent();

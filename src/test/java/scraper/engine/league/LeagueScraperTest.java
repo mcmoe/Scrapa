@@ -1,4 +1,4 @@
-package scraper.engine;
+package scraper.engine.league;
 
 import com.google.common.collect.Sets;
 import lombok.Cleanup;
@@ -20,16 +20,16 @@ import static org.junit.Assert.*;
  * Attempt to load web page and scrape for data
  * Created by mcmoe on 4/19/2014.
  */
-public class ScraperTest {
+public class LeagueScraperTest {
     /* PLEASE NOTE : scraping tests are ignored to avoid web spamming
     *  please launch manually before any commit! */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScraperTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeagueScraperTest.class);
 
     @Test @Ignore
     public void test_get_2012_top_scorers_and_scrape() {
         try {
-            Scraper scraper = new Scraper(Sets.newHashSet("England/Seasons/S2012.html"));
-            assertEquals(scrapeMock("scraped2012Table"), scraper.scrapeNext());
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/Seasons/S2012.html"));
+            assertEquals(scrapeMock("scraped2012Table"), leagueScraper.scrapeNext());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");
@@ -39,8 +39,8 @@ public class ScraperTest {
     @Test @Ignore
     public void test_get_2013_top_scorers_and_scrape() {
         try {
-            Scraper scraper = new Scraper(Sets.newHashSet("England/S2013.html"));
-            assertEquals(scrapeMock("scraped2013Table"), scraper.scrapeNext());
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/S2013.html"));
+            assertEquals(scrapeMock("scraped2013Table"), leagueScraper.scrapeNext());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");
@@ -50,30 +50,30 @@ public class ScraperTest {
     @Test @Ignore
     public void test_get_1986_top_scorers_and_scrape() {
         try {
-            Scraper scraper = new Scraper(Sets.newHashSet("England/Seasons/S1986.html"));
-            assertEquals(scrapeMock("scraped1986Table"), scraper.scrapeNext());
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/Seasons/S1986.html"));
+            assertEquals(scrapeMock("scraped1986Table"), leagueScraper.scrapeNext());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");
         }
     }
 
-    @Test
+    @Test @Ignore
     public void test_has_next_on_two_paths() {
-        Scraper scraper = new Scraper(Sets.newHashSet("a", "b"));
-        assertTrue(scraper.hasNext());
+        LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("a", "b"));
+        assertTrue(leagueScraper.hasNext());
 
-        try { scraper.scrapeNext(); }
-        catch(NullPointerException e) { assertTrue(scraper.hasNext()); }
+        try { leagueScraper.scrapeNext(); }
+        catch(NullPointerException e) { assertTrue(leagueScraper.hasNext()); }
 
-        try { scraper.scrapeNext(); }
-        catch(NullPointerException e) { assertFalse(scraper.hasNext()); }
+        try { leagueScraper.scrapeNext(); }
+        catch(NullPointerException e) { assertFalse(leagueScraper.hasNext()); }
     }
 
     @Test
     public void test_get_relative_paths() {
-        Scraper scraper = new Scraper(Sets.newHashSet("a", "b"));
-        Iterator<String> iterator = scraper.getRelativePaths().iterator();
+        LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("a", "b"));
+        Iterator<String> iterator = leagueScraper.getRelativePaths().iterator();
         assertEquals("a", iterator.next());
         assertEquals("b", iterator.next());
     }
