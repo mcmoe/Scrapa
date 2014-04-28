@@ -20,3 +20,5 @@ Now, it is a WIP at
 - SLF4J + LOG4J
 
 If you're interested in learning about these tools and API's in a simple project, now is your chance :)
+
+Let the open sourcin' begin!
