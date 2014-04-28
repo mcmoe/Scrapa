@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import scraper.wrappers.LeagueScraperData;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,32 +30,32 @@ public class LeagueParserTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeagueParserTest.class);
     @Test
-    public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
-        String tableXml = scrapeMock("scraped2012Table");
-        LOGGER.info(tableXml);
-        LeagueParser leagueParser = new LeagueParser(tableXml);
-        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
-    }
-
-    @Test
     public void test_parse_and_visit_mock_2013() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
-        String tableXml = scrapeMock("scraped2013Table");
-        LOGGER.info(tableXml);
-        LeagueParser leagueParser = new LeagueParser(tableXml);
+        LeagueParser leagueParser = getLeagueParser("England/S2013.html", "scraped2013Table");
         leagueParser.parseAndVisit(new TopScorersVisitorTest(21), new TeamGoalsVisitorTest(20));
     }
 
     @Test
+    public void test_parse_and_visit_mock_2012() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        LeagueParser leagueParser = getLeagueParser("England/Seasons/S2012.html", "scraped2012Table");
+        leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(20));
+    }
+
+    @Test
     public void test_parse_and_visit_mock_1986() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
-        String tableXml = scrapeMock("scraped1986Table");
-        LOGGER.info(tableXml);
-        LeagueParser leagueParser = new LeagueParser(tableXml);
+        LeagueParser leagueParser = getLeagueParser("England/Seasons/S1986.html", "scraped1986Table");
         leagueParser.parseAndVisit(new TopScorersVisitorTest(20), new TeamGoalsVisitorTest(22));
     }
 
     @Test(expected = NullPointerException.class)
     public void s() {
         LeagueParser.logRows(null);
+    }
+
+    private LeagueParser getLeagueParser(String season, String scrapedTable) throws IOException {
+        String tableXml = scrapeMock(scrapedTable);
+        LOGGER.info(tableXml);
+        return new LeagueParser(new LeagueScraperData(season, tableXml));
     }
 
     private String scrapeMock(String scrapedTable) throws IOException {

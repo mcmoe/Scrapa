@@ -6,6 +6,7 @@ import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scraper.wrappers.LeagueScraperData;
 
 import java.util.*;
 
@@ -18,6 +19,7 @@ import static java.util.stream.Collectors.joining;
 public class LeagueScraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeagueScraper.class);
+    static final String HTTP_DOMAIN = "http://www.free-elements.com/";
 
     private Set<String> relativePaths;
     private Iterator<String> iterator;
@@ -33,7 +35,7 @@ public class LeagueScraper {
         return iterator.hasNext();
     }
 
-    public String scrapeNext() {
+    public LeagueScraperData scrapeNext() {
         return scrapeWeb(iterator.next());
     }
 
@@ -41,13 +43,13 @@ public class LeagueScraper {
         return relativePaths;
     }
 
-    private static String scrapeWeb(String relativePath) {
-        String season = "http://www.free-elements.com/" + relativePath;
+    private static LeagueScraperData scrapeWeb(String relativePath) {
+        String season = HTTP_DOMAIN + relativePath;
         HtmlDocument page = mechanizeAgent.get(season);
         HtmlElement table = page.htmlElements().get(HtmlQueryBuilder.byTag("tbody"));
         String normalizedXml = normalizeXml(table.toString());
         LOGGER.info(normalizedXml);
-        return normalizedXml;
+        return new LeagueScraperData(season, normalizedXml);
     }
 
     private static String normalizeXml(String xml) {

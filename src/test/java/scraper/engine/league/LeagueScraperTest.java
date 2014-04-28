@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scraper.wrappers.LeagueScraperData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,8 +29,11 @@ public class LeagueScraperTest {
     @Test @Ignore
     public void test_get_2012_top_scorers_and_scrape() {
         try {
-            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/Seasons/S2012.html"));
-            assertEquals(scrapeMock("scraped2012Table"), leagueScraper.scrapeNext());
+            String season = "England/Seasons/S2012.html";
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet(season));
+            LeagueScraperData leagueScraperData = leagueScraper.scrapeNext();
+            assertEquals(scrapeMock("scraped2012Table"), leagueScraperData.getXmlTable());
+            assertEquals(LeagueScraper.HTTP_DOMAIN + season, leagueScraperData.getWebSource());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");
@@ -39,8 +43,11 @@ public class LeagueScraperTest {
     @Test @Ignore
     public void test_get_2013_top_scorers_and_scrape() {
         try {
-            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/S2013.html"));
-            assertEquals(scrapeMock("scraped2013Table"), leagueScraper.scrapeNext());
+            String season = "England/S2013.html";
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet(season));
+            LeagueScraperData leagueScraperData = leagueScraper.scrapeNext();
+            assertEquals(scrapeMock("scraped2013Table"), leagueScraperData.getXmlTable());
+            assertEquals(LeagueScraper.HTTP_DOMAIN + season, leagueScraperData.getWebSource());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");
@@ -50,8 +57,11 @@ public class LeagueScraperTest {
     @Test @Ignore
     public void test_get_1986_top_scorers_and_scrape() {
         try {
-            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet("England/Seasons/S1986.html"));
-            assertEquals(scrapeMock("scraped1986Table"), leagueScraper.scrapeNext());
+            String season = "England/Seasons/S1986.html";
+            LeagueScraper leagueScraper = new LeagueScraper(Sets.newHashSet(season));
+            LeagueScraperData leagueScraperData = leagueScraper.scrapeNext();
+            assertEquals(scrapeMock("scraped1986Table"), leagueScraperData.getXmlTable());
+            assertEquals(LeagueScraper.HTTP_DOMAIN + season, leagueScraperData.getWebSource());
         } catch(IOException e) {
             LOGGER.error("exception in unit test", e);
             fail("an exception was thrown!");

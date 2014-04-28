@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import scraper.wrappers.LeagueScraperData;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,12 +29,12 @@ import java.util.Optional;
 public class LeagueParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeagueParser.class);
-    private String tableXml;
+    private LeagueScraperData data;
     private Document document;
     private XPath xPath;
 
-    public LeagueParser(String tableXml) {
-        this.tableXml = tableXml;
+    public LeagueParser(LeagueScraperData data) {
+        this.data = data;
         xPath = XPathFactory.newInstance().newXPath();
     }
 
@@ -81,7 +82,7 @@ public class LeagueParser {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(tableXml));
+        is.setCharacterStream(new StringReader(data.getXmlTable()));
         return builder.parse(is);
     }
 
