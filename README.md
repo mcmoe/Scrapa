@@ -3,7 +3,9 @@ Scrapa!
 
 Stared off as an attempt at testing Java 8 with Gradle...
 
-###Now, it is a WIP at web scraping football data with the goal of  building a query-able database###
+Now, it is a WIP at
+
+###Web scraping football data with the goal of  building a query-able database###
 
 ####Some of the stuff used in this project:####
 
