@@ -1,6 +1,6 @@
 package h2.table;
 
-import h2.connection.H2Server;
+import h2.connection.H2Utils;
 import h2.sql.TopScorersSQL;
 import lombok.Cleanup;
 import model.TopScorer;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class H2TopScorer {
     static void createTopScorersTable(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         statement.execute(TopScorersSQL.CREATE_TOP_SCORERS_TABLE);
     }
 
@@ -28,7 +28,7 @@ public class H2TopScorer {
     }
 
     public static List<TopScorer> getTopScorers(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         ResultSet resultSet = statement.executeQuery(TopScorersSQL.GET_TOP_SCORERS);
         List<TopScorer> topScorers = new ArrayList<>();
 
@@ -50,7 +50,7 @@ public class H2TopScorer {
     }
 
     static int deleteTopScorers(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         return statement.executeUpdate(TopScorersSQL.DELETE_TOP_SCORERS);
     }
 }

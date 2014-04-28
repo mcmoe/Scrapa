@@ -1,6 +1,6 @@
 package h2.table;
 
-import h2.connection.H2Server;
+import h2.connection.H2Utils;
 import h2.sql.TeamGoalsSQL;
 import lombok.Cleanup;
 import model.TeamGoals;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class H2TeamGoals {
     static void createTeamGoalsTable(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         statement.execute(TeamGoalsSQL.CREATE_TEAM_GOALS_TABLE);
     }
 
@@ -28,7 +28,7 @@ public class H2TeamGoals {
     }
 
     public static List<TeamGoals> getTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         ResultSet resultSet = statement.executeQuery(TeamGoalsSQL.GET_TEAM_GOALS);
         List<TeamGoals> teamGoals = new ArrayList<>();
 
@@ -48,7 +48,7 @@ public class H2TeamGoals {
     }
 
     static int deleteTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Server.createStatement(connection);
+        @Cleanup Statement statement = H2Utils.createStatement(connection);
         return statement.executeUpdate(TeamGoalsSQL.DELETE_TEAM_GOALS);
     }
 }

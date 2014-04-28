@@ -1,11 +1,11 @@
 package h2.table;
 
-import h2.connection.H2Server;
+import h2.connection.H2MemoryServer;
+import h2.connection.H2Utils;
 import h2.sql.TeamGoalsSQL;
 import lombok.Cleanup;
 import model.TeamGoals;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +24,22 @@ public class H2TeamGoalsTest {
     private static final String MANCHESTER_UNITED = "Manchester United";
     private static final int GOALS = 66;
 
+    private static H2MemoryServer h2MemoryServer;
+
+    @BeforeClass
+    public static void setUp() {
+        h2MemoryServer = new H2MemoryServer();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        h2MemoryServer.close();
+    }
+
     @After
-    public void tearDown() {
+    public void resetTable() {
         try {
-            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+            @Cleanup Connection connection = h2MemoryServer.getConnection();
             H2TeamGoals.deleteTeamGoals(connection);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on tear down!", e);
@@ -38,10 +50,10 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_meta_data() {
         try {
-            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+            @Cleanup Connection connection = h2MemoryServer.getConnection();
             H2TeamGoals.createTeamGoalsTable(connection);
 
-            @Cleanup Statement statement = H2Server.createStatement(connection);
+            @Cleanup Statement statement = H2Utils.createStatement(connection);
             @Cleanup ResultSet teamGoals = H2TeamGoals.getTeamGoals(statement);
             assertResultSetMetaData(teamGoals);
         } catch (SQLException e) {
@@ -53,7 +65,7 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_add_and_get() {
         try {
-            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+            @Cleanup Connection connection = h2MemoryServer.getConnection();
             H2TeamGoals.createTeamGoalsTable(connection);
             assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
 
@@ -72,7 +84,7 @@ public class H2TeamGoalsTest {
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+        @Cleanup Connection connection = h2MemoryServer.getConnection();
         H2TeamGoals.createTeamGoalsTable(connection);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
@@ -80,7 +92,7 @@ public class H2TeamGoalsTest {
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_primary_key_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+        @Cleanup Connection connection = h2MemoryServer.getConnection();
         H2TeamGoals.createTeamGoalsTable(connection);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS + 1);
@@ -89,7 +101,7 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_add_and_delete() {
         try {
-            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
+            @Cleanup Connection connection = h2MemoryServer.getConnection();
             H2TeamGoals.createTeamGoalsTable(connection);
             assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
             assertEquals(1, H2TeamGoals.deleteTeamGoals(connection));
