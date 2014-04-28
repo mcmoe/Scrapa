@@ -1,14 +1,11 @@
 package scraper.engine.league;
 
+import commons.Utils;
 import lombok.Cleanup;
 import scraper.wrapper.LeagueScraperData;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import static java.util.stream.Collectors.joining;
 
 /**
  * Mock Data Objects returned by LeagueScraper
@@ -22,7 +19,6 @@ public class LeagueScraperMocker {
 
     static String scrapeMock(String scrapedTable) throws IOException {
         @Cleanup InputStream inStream = LeagueScraperMocker.class.getResourceAsStream(scrapedTable);
-        @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        return reader.lines().collect(joining(""));
+        return Utils.getString(inStream);
     }
 }
