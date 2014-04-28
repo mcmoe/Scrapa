@@ -11,7 +11,7 @@ import java.sql.Statement;
  * Utility Class for H2 related helper methods
  * Created by mcmoe on 4/26/2014.
  */
-public class H2Utils {
+public class H2Server {
     static Connection createInMemoryH2Connection() throws SQLException {
         return createH2Connection(DbInfo.H2_MEM_DB);
     }

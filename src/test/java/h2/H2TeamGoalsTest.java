@@ -26,7 +26,7 @@ public class H2TeamGoalsTest {
     @After
     public void tearDown() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TeamGoals.deleteTeamGoals(connection);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on tear down!", e);
@@ -37,10 +37,10 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_meta_data() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TeamGoals.createTeamGoalsTable(connection);
 
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
+            @Cleanup Statement statement = H2Server.createStatement(connection);
             @Cleanup ResultSet teamGoals = H2TeamGoals.getTeamGoals(statement);
             assertResultSetMetaData(teamGoals);
         } catch (SQLException e) {
@@ -52,7 +52,7 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_add_and_get() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TeamGoals.createTeamGoalsTable(connection);
             assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
 
@@ -71,7 +71,7 @@ public class H2TeamGoalsTest {
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
         H2TeamGoals.createTeamGoalsTable(connection);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
@@ -79,7 +79,7 @@ public class H2TeamGoalsTest {
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_primary_key_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
         H2TeamGoals.createTeamGoalsTable(connection);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
         H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS + 1);
@@ -88,7 +88,7 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_add_and_delete() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TeamGoals.createTeamGoalsTable(connection);
             assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
             assertEquals(1, H2TeamGoals.deleteTeamGoals(connection));

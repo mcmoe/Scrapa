@@ -21,7 +21,7 @@ public class H2Test {
     @Test
     public void test_create_in_memory_h2() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             assertFalse(connection.isClosed());
         } catch(SQLException e) {
             LOGGER.error("SQL Exception encountered!", e);
@@ -32,7 +32,7 @@ public class H2Test {
     @Test
     public void test_create_embedded_h2() {
         try {
-            @Cleanup Connection connection = H2Utils.createEmbeddedH2Connection();
+            @Cleanup Connection connection = H2Server.createEmbeddedH2Connection();
             assertFalse(connection.isClosed());
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered!", e);

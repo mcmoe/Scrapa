@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class H2TeamGoals {
     static void createTeamGoalsTable(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
+        @Cleanup Statement statement = H2Server.createStatement(connection);
         statement.execute(TeamGoalsSQL.CREATE_TEAM_GOALS_TABLE);
     }
 
@@ -27,7 +27,7 @@ public class H2TeamGoals {
     }
 
     public static List<TeamGoals> getTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
+        @Cleanup Statement statement = H2Server.createStatement(connection);
         ResultSet resultSet = statement.executeQuery(TeamGoalsSQL.GET_TEAM_GOALS);
         List<TeamGoals> teamGoals = new ArrayList<>();
 
@@ -47,7 +47,7 @@ public class H2TeamGoals {
     }
 
     static int deleteTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
+        @Cleanup Statement statement = H2Server.createStatement(connection);
         return statement.executeUpdate(TeamGoalsSQL.DELETE_TEAM_GOALS);
     }
 }

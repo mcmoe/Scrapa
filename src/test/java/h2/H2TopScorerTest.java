@@ -27,7 +27,7 @@ public class H2TopScorerTest {
     @After
     public void tearDown() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TopScorer.deleteTopScorers(connection);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on tear down!", e);
@@ -38,10 +38,10 @@ public class H2TopScorerTest {
     @Test
     public void test_top_scorer_meta_data() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
 
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
+            @Cleanup Statement statement = H2Server.createStatement(connection);
             @Cleanup ResultSet topScores = H2TopScorer.getTopScorers(statement);
             assertResultSetMetaData(topScores);
         } catch (SQLException e) {
@@ -53,7 +53,7 @@ public class H2TopScorerTest {
     @Test
     public void test_top_scorer_add_and_get() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
             assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
@@ -73,7 +73,7 @@ public class H2TopScorerTest {
 
     @Test(expected = SQLException.class)
     public void test_top_scorer_add_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
         H2TopScorer.createTopScorersTable(connection);
         H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
         H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
@@ -81,7 +81,7 @@ public class H2TopScorerTest {
 
     @Test(expected = SQLException.class)
     public void test_top_scorer_add_primary_key_duplicate() throws SQLException {
-        @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+        @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
         H2TopScorer.createTopScorersTable(connection);
         H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
         H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
@@ -90,7 +90,7 @@ public class H2TopScorerTest {
     @Test
     public void test_top_scorer_add_and_delete() {
         try {
-            @Cleanup Connection connection = H2Utils.createInMemoryH2Connection();
+            @Cleanup Connection connection = H2Server.createInMemoryH2Connection();
             H2TopScorer.createTopScorersTable(connection);
             assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
             assertEquals(1, H2TopScorer.deleteTopScorers(connection));
