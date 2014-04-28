@@ -1,7 +1,7 @@
 package scraper.engine.league;
 
 import lombok.Cleanup;
-import scraper.wrappers.LeagueScraperData;
+import scraper.wrapper.LeagueScraperData;
 
 import java.io.BufferedReader;
 import java.io.IOException;

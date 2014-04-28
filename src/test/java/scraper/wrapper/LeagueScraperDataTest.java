@@ -1,4 +1,4 @@
-package scraper.wrappers;
+package scraper.wrapper;
 
 import org.junit.Test;
 

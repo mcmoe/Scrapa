@@ -6,7 +6,7 @@ import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scraper.wrappers.LeagueScraperData;
+import scraper.wrapper.LeagueScraperData;
 
 import java.util.*;
 
