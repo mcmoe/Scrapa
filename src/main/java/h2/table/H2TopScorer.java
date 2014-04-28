@@ -19,7 +19,7 @@ public class H2TopScorer {
         statement.execute(TopScorerSQL.CREATE_TOP_SCORERS_TABLE);
     }
 
-    static PreparedStatement prepareAddTopScorersStatement(Connection connection) throws SQLException {
+    private static PreparedStatement prepareAddTopScorersStatement(Connection connection) throws SQLException {
         return connection.prepareStatement(TopScorerSQL.ADD_TOP_SCORER);
     }
 
@@ -29,7 +29,7 @@ public class H2TopScorer {
 
     public static List<TopScorer> getTopScorers(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
-        ResultSet resultSet = statement.executeQuery(TopScorerSQL.GET_TOP_SCORERS);
+        @Cleanup ResultSet resultSet = statement.executeQuery(TopScorerSQL.GET_TOP_SCORERS);
         List<TopScorer> topScorers = new ArrayList<>();
 
         while(resultSet.next()) {
@@ -41,7 +41,7 @@ public class H2TopScorer {
         return topScorers;
     }
 
-    static int addTopScorer(Connection connection, String player, String team, int goals) throws SQLException {
+    public static int addTopScorer(Connection connection, String player, String team, int goals) throws SQLException {
         @Cleanup PreparedStatement addTopScorerStatement = H2TopScorer.prepareAddTopScorersStatement(connection);
         addTopScorerStatement.setString(TopScorerSQL.COLUMNS.PLAYER.index(), player);
         addTopScorerStatement.setString(TopScorerSQL.COLUMNS.TEAM.index(), team);
@@ -49,7 +49,7 @@ public class H2TopScorer {
         return addTopScorerStatement.executeUpdate();
     }
 
-    static int deleteTopScorers(Connection connection) throws SQLException {
+    public static int deleteTopScorers(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
         return statement.executeUpdate(TopScorerSQL.DELETE_TOP_SCORERS);
     }
