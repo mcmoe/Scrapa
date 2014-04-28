@@ -1,24 +1,19 @@
 package parser.league;
 
-import lombok.Cleanup;
 import model.TeamGoals;
 import model.TopScorer;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import scraper.wrappers.LeagueScraperData;
+import scraper.engine.league.LeagueScraperMocker;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -53,15 +48,7 @@ public class LeagueParserTest {
     }
 
     private LeagueParser getLeagueParser(String season, String scrapedTable) throws IOException {
-        String tableXml = scrapeMock(scrapedTable);
-        LOGGER.info(tableXml);
-        return new LeagueParser(new LeagueScraperData(season, tableXml));
-    }
-
-    private String scrapeMock(String scrapedTable) throws IOException {
-        @Cleanup InputStream inStream = getClass().getResourceAsStream(scrapedTable);
-        @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        return reader.lines().collect(joining(""));
+        return new LeagueParser(LeagueScraperMocker.getMockedData(season, scrapedTable));
     }
 
     private class TopScorersVisitorTest implements TopScorersVisitor {

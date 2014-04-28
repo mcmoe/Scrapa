@@ -1,21 +1,17 @@
 package scraper.engine.league;
 
 import com.google.common.collect.Sets;
-import lombok.Cleanup;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scraper.wrappers.LeagueScraperData;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.*;
+import static scraper.engine.league.LeagueScraperMocker.scrapeMock;
 
 /**
  * Attempt to load web page and scrape for data
@@ -86,11 +82,5 @@ public class LeagueScraperTest {
         Iterator<String> iterator = leagueScraper.getRelativePaths().iterator();
         assertEquals("a", iterator.next());
         assertEquals("b", iterator.next());
-    }
-
-    private String scrapeMock(String scrapedTable) throws IOException {
-        @Cleanup InputStream inStream = getClass().getResourceAsStream(scrapedTable);
-        @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        return reader.lines().collect(joining(""));
     }
 }
