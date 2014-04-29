@@ -14,7 +14,7 @@ import java.util.List;
  * Created by mcmoe on 4/26/2014.
  */
 public class H2TopScorer {
-    static void createTopScorersTable(Connection connection) throws SQLException {
+    public static void createTopScorersTable(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
         statement.execute(TopScorerSQL.CREATE_TOP_SCORERS_TABLE);
     }

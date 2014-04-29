@@ -14,7 +14,7 @@ import java.util.List;
  * Created by mcmoe on 4/28/2014.
  */
 public class H2TeamGoals {
-    static void createTeamGoalsTable(Connection connection) throws SQLException {
+    public static void createTeamGoalsTable(Connection connection) throws SQLException {
         @Cleanup Statement statement = H2Utils.createStatement(connection);
         statement.execute(TeamGoalsSQL.CREATE_TEAM_GOALS_TABLE);
     }
