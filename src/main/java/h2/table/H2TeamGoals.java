@@ -4,6 +4,8 @@ import h2.connection.H2Utils;
 import h2.sql.TeamGoalsSQL;
 import lombok.Cleanup;
 import model.TeamGoals;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,41 +16,68 @@ import java.util.List;
  * Created by mcmoe on 4/28/2014.
  */
 public class H2TeamGoals {
-    public static void createTeamGoalsTable(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        statement.execute(TeamGoalsSQL.CREATE_TEAM_GOALS_TABLE);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2TeamGoals.class);
+
+    private static Statement statement;
+    private static PreparedStatement addTeamGoalsStatement;
+
+    private Connection connection;
+
+    public H2TeamGoals(Connection connection) {
+        this.connection = connection;
     }
 
-    private static PreparedStatement prepareAddTeamGoalsStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement(TeamGoalsSQL.ADD_TEAM_GOALS);
+    public void createTeamGoalsTable() throws SQLException {
+        getStatement().execute(TeamGoalsSQL.CREATE_TEAM_GOALS_TABLE);
     }
 
-    static ResultSet getTeamGoals(Statement statement) throws SQLException {
-        return statement.executeQuery(TeamGoalsSQL.GET_TEAM_GOALS);
+    private Statement getStatement() throws SQLException {
+        if(statement == null) {
+            statement = H2Utils.createStatement(connection);
+        }
+        return statement;
     }
 
-    public static List<TeamGoals> getTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        @Cleanup ResultSet resultSet = statement.executeQuery(TeamGoalsSQL.GET_TEAM_GOALS);
+    private PreparedStatement prepareAddTeamGoalsStatement() throws SQLException {
+        if(addTeamGoalsStatement == null) {
+            addTeamGoalsStatement = connection.prepareStatement(TeamGoalsSQL.ADD_TEAM_GOALS);
+        }
+        return addTeamGoalsStatement;
+    }
+
+    public ResultSet getMetaData() throws SQLException {
+        return connection.getMetaData().getColumns(null, null, TeamGoalsSQL.TEAM_GOALS_TABLE , null);
+    }
+
+    public List<TeamGoals> getTeamGoals() throws SQLException {
+        @Cleanup ResultSet resultSet = getStatement().executeQuery(TeamGoalsSQL.GET_TEAM_GOALS);
         List<TeamGoals> teamGoals = new ArrayList<>();
 
         while(resultSet.next()) {
             teamGoals.add(new TeamGoals(resultSet.getString(TeamGoalsSQL.COLUMNS.TEAM.index()),
                                         resultSet.getInt(TeamGoalsSQL.COLUMNS.GOALS.index())));
         }
-
         return teamGoals;
     }
 
-    public static int addTeamGoals(Connection connection, String team, int goals) throws SQLException {
-        @Cleanup PreparedStatement addTeamGoalsStatement = H2TeamGoals.prepareAddTeamGoalsStatement(connection);
+    public int addTeamGoals(String team, int goals) throws SQLException {
+        PreparedStatement addTeamGoalsStatement = prepareAddTeamGoalsStatement();
         addTeamGoalsStatement.setString(TeamGoalsSQL.COLUMNS.TEAM.index(), team);
         addTeamGoalsStatement.setInt(TeamGoalsSQL.COLUMNS.GOALS.index(), goals);
         return addTeamGoalsStatement.executeUpdate();
     }
 
-    public static int deleteTeamGoals(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        return statement.executeUpdate(TeamGoalsSQL.DELETE_TEAM_GOALS);
+    public int deleteTeamGoals() throws SQLException {
+        return getStatement().executeUpdate(TeamGoalsSQL.DELETE_TEAM_GOALS);
+    }
+
+    public void close() {
+        try {
+            addTeamGoalsStatement.close();
+            statement.close();
+        } catch (SQLException e) {
+            LOGGER.error("Exception while closing statements", e);
+        }
     }
 }

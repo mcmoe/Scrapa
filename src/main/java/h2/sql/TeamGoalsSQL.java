@@ -6,7 +6,7 @@ package h2.sql;
  */
 public class TeamGoalsSQL {
 
-    private static final String TEAM_GOALS = "TEAM_GOALS";
+    public static final String TEAM_GOALS_TABLE = "TEAM_GOALS";
     private static final String TEAM = "TEAM";
     private static final String GOALS = "GOALS";
 
@@ -25,17 +25,17 @@ public class TeamGoalsSQL {
 
     public static final String
             ADD_TEAM_GOALS =
-            "INSERT INTO " + TEAM_GOALS + " (" + TEAM + ", " + GOALS + ") VALUES (?,?)";
+            "INSERT INTO " + TEAM_GOALS_TABLE + " (" + TEAM + ", " + GOALS + ") VALUES (?,?)";
     public static final String
             CREATE_TEAM_GOALS_TABLE =
-            "CREATE TABLE IF NOT EXISTS " + TEAM_GOALS + "("
+            "CREATE TABLE IF NOT EXISTS " + TEAM_GOALS_TABLE + "("
                     + TEAM + " VARCHAR(255), " + GOALS + " INT, "
                     + "PRIMARY KEY (TEAM)"
                     + ")";
     public static final String
             GET_TEAM_GOALS =
-            "SELECT * FROM " + TEAM_GOALS;
+            "SELECT * FROM " + TEAM_GOALS_TABLE;
     public static final String
             DELETE_TEAM_GOALS =
-            "DELETE FROM " + TEAM_GOALS;
+            "DELETE FROM " + TEAM_GOALS_TABLE;
 }

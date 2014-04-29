@@ -1,8 +1,8 @@
 package h2.table;
 
 import h2.connection.H2MemoryServer;
-import h2.connection.H2Utils;
 import h2.sql.TeamGoalsSQL;
+import h2.table.commons.ColumnsMeta;
 import lombok.Cleanup;
 import model.TeamGoals;
 import org.junit.*;
@@ -25,22 +25,30 @@ public class H2TeamGoalsTest {
     private static final int GOALS = 66;
 
     private static H2MemoryServer h2MemoryServer;
+    private static H2TeamGoals h2TeamGoals;
 
     @BeforeClass
     public static void setUp() {
         h2MemoryServer = new H2MemoryServer();
+        try {
+            h2TeamGoals = new H2TeamGoals(h2MemoryServer.getConnection());
+            h2TeamGoals.createTeamGoalsTable();
+            } catch (SQLException e) {
+            LOGGER.error("SQL Exception on setUp!", e);
+            fail("setUp Exception - check logs");
+        }
     }
 
     @AfterClass
     public static void tearDown() {
+        h2TeamGoals.close();
         h2MemoryServer.close();
     }
 
     @After
     public void resetTable() {
         try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TeamGoals.deleteTeamGoals(connection);
+            h2TeamGoals.deleteTeamGoals();
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on reset table!", e);
             fail("SQL Exception on tear down - check logs");
@@ -48,77 +56,52 @@ public class H2TeamGoalsTest {
     }
 
     @Test
-    public void test_team_goals_meta_data() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TeamGoals.createTeamGoalsTable(connection);
-
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
-            @Cleanup ResultSet teamGoals = H2TeamGoals.getTeamGoals(statement);
-            assertResultSetMetaData(teamGoals);
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered!", e);
-            fail("SQL Exception - check logs");
-        }
+    public void test_team_goals_meta_data() throws SQLException {
+        @Cleanup ResultSet teamGoals = h2TeamGoals.getMetaData();
+        assertResultSetMetaData(teamGoals);
     }
 
     @Test
-    public void test_team_goals_add_and_get() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TeamGoals.createTeamGoalsTable(connection);
-            assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
+    public void test_team_goals_add_and_get() throws SQLException {
+        assertEquals(1, h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS));
 
-            List<TeamGoals> teams = H2TeamGoals.getTeamGoals(connection);
-            assertEquals(1, teams.size());
-            TeamGoals teamGoals = teams.get(0);
+        List<TeamGoals> teams = h2TeamGoals.getTeamGoals();
+        assertEquals(1, teams.size());
+        TeamGoals teamGoals = teams.get(0);
 
-            assertEquals(MANCHESTER_UNITED, teamGoals.getTeam());
-            assertEquals(GOALS, teamGoals.getGoals());
-
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+        assertEquals(MANCHESTER_UNITED, teamGoals.getTeam());
+        assertEquals(GOALS, teamGoals.getGoals());
     }
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_duplicate() throws SQLException {
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2TeamGoals.createTeamGoalsTable(connection);
-        H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
-        H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
+        h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS);
+        h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS);
     }
 
     @Test(expected = SQLException.class)
     public void test_team_goals_add_primary_key_duplicate() throws SQLException {
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2TeamGoals.createTeamGoalsTable(connection);
-        H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS);
-        H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS + 1);
+        h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS);
+        h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS + 1);
     }
 
     @Test
-    public void test_team_goals_add_and_delete() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TeamGoals.createTeamGoalsTable(connection);
-            assertEquals(1, H2TeamGoals.addTeamGoals(connection, MANCHESTER_UNITED, GOALS));
-            assertEquals(1, H2TeamGoals.deleteTeamGoals(connection));
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+    public void test_team_goals_add_and_delete() throws SQLException {
+        assertEquals(1, h2TeamGoals.addTeamGoals(MANCHESTER_UNITED, GOALS));
+        assertEquals(1, h2TeamGoals.deleteTeamGoals());
     }
 
-    private void assertResultSetMetaData(ResultSet teamGoals) throws SQLException {
-        ResultSetMetaData metaData = teamGoals.getMetaData();
-        assertEquals(2, metaData.getColumnCount());
+    private void assertResultSetMetaData(ResultSet metaData) throws SQLException {
+        metaData.next();
+        assertEquals(metaData.getRow(), TeamGoalsSQL.COLUMNS.TEAM.index());
+        assertEquals("TEAM", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("VARCHAR", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("TEAM", metaData.getColumnName(TeamGoalsSQL.COLUMNS.TEAM.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(TeamGoalsSQL.COLUMNS.TEAM.index()));
+        metaData.next();
+        assertEquals(metaData.getRow(), TeamGoalsSQL.COLUMNS.GOALS.index());
+        assertEquals("GOALS", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("INTEGER", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("GOALS", metaData.getColumnName(TeamGoalsSQL.COLUMNS.GOALS.index()));
-        assertEquals("INTEGER", metaData.getColumnTypeName(TeamGoalsSQL.COLUMNS.GOALS.index()));
+        assertEquals("there should not be anymore rows!", false, metaData.next());
     }
 }
