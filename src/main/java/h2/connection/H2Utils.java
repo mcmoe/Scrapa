@@ -11,6 +11,6 @@ import java.sql.Statement;
  */
 public class H2Utils {
     public static Statement createStatement(Connection connection) throws SQLException {
-        return connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        return connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
     }
 }
