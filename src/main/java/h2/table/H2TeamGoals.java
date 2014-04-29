@@ -19,8 +19,8 @@ public class H2TeamGoals {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(H2TeamGoals.class);
 
-    private static Statement statement;
-    private static PreparedStatement addTeamGoalsStatement;
+    private Statement statement;
+    private PreparedStatement addTeamGoalsStatement;
 
     private Connection connection;
 
@@ -74,8 +74,12 @@ public class H2TeamGoals {
 
     public void close() {
         try {
-            addTeamGoalsStatement.close();
-            statement.close();
+            if(addTeamGoalsStatement != null) {
+                addTeamGoalsStatement.close();
+            }
+            if(statement != null) {
+                statement.close();
+            }
         } catch (SQLException e) {
             LOGGER.error("Exception while closing statements", e);
         }
