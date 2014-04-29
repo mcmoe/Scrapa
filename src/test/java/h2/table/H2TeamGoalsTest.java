@@ -58,7 +58,7 @@ public class H2TeamGoalsTest {
     @Test
     public void test_team_goals_meta_data() throws SQLException {
         @Cleanup ResultSet teamGoals = h2TeamGoals.getMetaData();
-        assertResultSetMetaData(teamGoals);
+        assertColumnsMetaData(teamGoals);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class H2TeamGoalsTest {
         assertEquals(1, h2TeamGoals.deleteTeamGoals());
     }
 
-    private void assertResultSetMetaData(ResultSet metaData) throws SQLException {
+    private void assertColumnsMetaData(ResultSet metaData) throws SQLException {
         metaData.next();
         assertEquals(metaData.getRow(), TeamGoalsSQL.COLUMNS.TEAM.index());
         assertEquals("TEAM", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));

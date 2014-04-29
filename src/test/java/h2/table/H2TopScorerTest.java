@@ -1,8 +1,8 @@
 package h2.table;
 
 import h2.connection.H2MemoryServer;
-import h2.connection.H2Utils;
 import h2.sql.TopScorerSQL;
+import h2.table.commons.ColumnsMeta;
 import lombok.Cleanup;
 import model.TopScorer;
 import org.junit.After;
@@ -29,22 +29,30 @@ public class H2TopScorerTest {
     private static final int GOALS = 66;
 
     private static H2MemoryServer h2MemoryServer;
+    private static H2TopScorer h2TopScorer;
 
     @BeforeClass
     public static void setUp() {
         h2MemoryServer = new H2MemoryServer();
+        try {
+            h2TopScorer = new H2TopScorer(h2MemoryServer.getConnection());
+            h2TopScorer.createTopScorersTable();
+        } catch (SQLException e) {
+            LOGGER.error("SQL Exception on setUp!", e);
+            fail("setUp Exception - check logs");
+        }
     }
 
     @AfterClass
     public static void tearDown() {
+        h2TopScorer.close();
         h2MemoryServer.close();
     }
 
     @After
     public void resetTable() {
         try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TopScorer.deleteTopScorers(connection);
+            h2TopScorer.deleteTopScorers();
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on tear down!", e);
             fail("SQL Exception on tear down - check logs");
@@ -52,83 +60,62 @@ public class H2TopScorerTest {
     }
 
     @Test
-    public void test_top_scorer_meta_data() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TopScorer.createTopScorersTable(connection);
-
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
-            @Cleanup ResultSet topScores = H2TopScorer.getTopScorers(statement);
-            assertResultSetMetaData(topScores);
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+    public void test_top_scorer_meta_data() throws SQLException {
+        @Cleanup ResultSet metaData = h2TopScorer.getMetaData();
+        assertColumnsMetaData(metaData);
     }
 
     @Test
-    public void test_top_scorer_add_and_get() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+    public void test_top_scorer_add_and_get() throws SQLException {
+        h2TopScorer.createTopScorersTable();
+        assertEquals(1, h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
 
-            List<TopScorer> tops = H2TopScorer.getTopScorers(connection);
-            assertEquals(1, tops.size());
-            TopScorer topScorer = tops.get(0);
+        List<TopScorer> tops = h2TopScorer.getTopScorers();
+        assertEquals(1, tops.size());
+        TopScorer topScorer = tops.get(0);
 
-            assertEquals(WAYNE_ROONEY, topScorer.getPlayer());
-            assertEquals(MANCHESTER_UNITED, topScorer.getTeam());
-            assertEquals(GOALS, topScorer.getGoals());
-
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+        assertEquals(WAYNE_ROONEY, topScorer.getPlayer());
+        assertEquals(MANCHESTER_UNITED, topScorer.getTeam());
+        assertEquals(GOALS, topScorer.getGoals());
     }
 
     @Test(expected = SQLException.class)
     public void test_top_scorer_add_duplicate() throws SQLException {
-        @Cleanup H2MemoryServer h2MemoryServer = new H2MemoryServer();
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2TopScorer.createTopScorersTable(connection);
-        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
-        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        h2TopScorer.createTopScorersTable();
+        h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
     }
 
     @Test(expected = SQLException.class)
     public void test_top_scorer_add_primary_key_duplicate() throws SQLException {
-        @Cleanup H2MemoryServer h2MemoryServer = new H2MemoryServer();
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2TopScorer.createTopScorersTable(connection);
-        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
-        H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
+        h2TopScorer.createTopScorersTable();
+        h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS);
+        h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS+1);
     }
 
     @Test
-    public void test_top_scorer_add_and_delete() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2TopScorer.createTopScorersTable(connection);
-            assertEquals(1, H2TopScorer.addTopScorer(connection, WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
-            assertEquals(1, H2TopScorer.deleteTopScorers(connection));
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+    public void test_top_scorer_add_and_delete() throws SQLException {
+        h2TopScorer.createTopScorersTable();
+        assertEquals(1, h2TopScorer.addTopScorer(WAYNE_ROONEY, MANCHESTER_UNITED, GOALS));
+        assertEquals(1, h2TopScorer.deleteTopScorers());
     }
 
-    private void assertResultSetMetaData(ResultSet topScores) throws SQLException {
-        ResultSetMetaData metaData = topScores.getMetaData();
-        assertEquals(3, metaData.getColumnCount());
+    private void assertColumnsMetaData(ResultSet metaData) throws SQLException {
+        metaData.next();
+        assertEquals(metaData.getRow(), TopScorerSQL.COLUMNS.PLAYER.index());
+        assertEquals("PLAYER", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("VARCHAR", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("PLAYER", metaData.getColumnName(TopScorerSQL.COLUMNS.PLAYER.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.PLAYER.index()));
+        metaData.next();
+        assertEquals(metaData.getRow(), TopScorerSQL.COLUMNS.TEAM.index());
+        assertEquals("TEAM", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("VARCHAR", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("TEAM", metaData.getColumnName(TopScorerSQL.COLUMNS.TEAM.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.TEAM.index()));
+        metaData.next();
+        assertEquals(metaData.getRow(), TopScorerSQL.COLUMNS.GOALS.index());
+        assertEquals("GOALS", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("INTEGER", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("GOALS", metaData.getColumnName(TopScorerSQL.COLUMNS.GOALS.index()));
-        assertEquals("INTEGER", metaData.getColumnTypeName(TopScorerSQL.COLUMNS.GOALS.index()));
+        assertEquals("there should not be anymore rows!", false, metaData.next());
     }
 }

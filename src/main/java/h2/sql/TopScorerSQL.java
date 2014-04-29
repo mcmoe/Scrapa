@@ -6,7 +6,7 @@ package h2.sql;
  */
 public class TopScorerSQL {
 
-    private static final String TOP_SCORERS = "TOP_SCORERS";
+    public static final String TOP_SCORERS_TABLE = "TOP_SCORERS";
     private static final String PLAYER = "PLAYER";
     private static final String TEAM = "TEAM";
     private static final String GOALS = "GOALS";
@@ -27,17 +27,17 @@ public class TopScorerSQL {
 
     public static final String
             ADD_TOP_SCORER =
-            "INSERT INTO " + TOP_SCORERS + " (" + PLAYER + ", " + TEAM + ", " + GOALS + ") VALUES (?,?,?)";
+            "INSERT INTO " + TOP_SCORERS_TABLE + " (" + PLAYER + ", " + TEAM + ", " + GOALS + ") VALUES (?,?,?)";
     public static final String
             CREATE_TOP_SCORERS_TABLE =
-            "CREATE TABLE IF NOT EXISTS " + TOP_SCORERS + "("
+            "CREATE TABLE IF NOT EXISTS " + TOP_SCORERS_TABLE + "("
                     + PLAYER + " VARCHAR(255), " + TEAM + " VARCHAR(255), " + GOALS + " INT, "
                     + "PRIMARY KEY (PLAYER, TEAM)"
                     + ")";
     public static final String
             GET_TOP_SCORERS =
-            "SELECT * FROM " + TOP_SCORERS;
+            "SELECT * FROM " + TOP_SCORERS_TABLE;
     public static final String
             DELETE_TOP_SCORERS =
-            "DELETE FROM " + TOP_SCORERS;
+            "DELETE FROM " + TOP_SCORERS_TABLE;
 }
