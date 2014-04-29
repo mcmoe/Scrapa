@@ -23,25 +23,26 @@ import java.util.Optional;
 public class H2ScrapaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(H2ScrapaData.class);
 
-    public static void createScrapaDataTable(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        statement.execute(ScrapaDataSQL.CREATE_SCRAPA_DATA_TABLE);
+    private Statement statement;
+    private PreparedStatement addDataStatement;
+    private PreparedStatement getDataWhereStatement;
+
+    private final Connection connection;
+
+    public H2ScrapaData(Connection connection) {
+        this.connection = connection;
     }
 
-    private static PreparedStatement prepareAddScrapaDataStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement(ScrapaDataSQL.ADD_SCRAPA_URL_DATA);
+    public void createScrapaDataTable() throws SQLException {
+        getStatement().execute(ScrapaDataSQL.CREATE_SCRAPA_DATA_TABLE);
     }
 
-    static ResultSet getScrapaData(Statement statement) throws SQLException {
-        return statement.executeQuery(ScrapaDataSQL.GET_SCRAPA_DATA);
+    public ResultSet getMetaData() throws SQLException {
+        return connection.getMetaData().getColumns(null, null, ScrapaDataSQL.SCRAPA_DATA_TABLE, null);
     }
 
-    private static PreparedStatement prepareGetScrapaDataWhereStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement(ScrapaDataSQL.GET_SCRAPA_DATA_WHERE);
-    }
-
-    public static Optional<ScrapaData> getScrapaDataWhere(Connection connection, String url) throws SQLException {
-        PreparedStatement statement = prepareGetScrapaDataWhereStatement(connection);
+    public Optional<ScrapaData> getScrapaDataWhere(String url) throws SQLException {
+        PreparedStatement statement = prepareGetScrapaDataWhereStatement();
         statement.setString(ScrapaDataSQL.COLUMNS.URL.index(), url);
         ResultSet resultSet = statement.executeQuery();
         Optional<ScrapaData> scrapaData = Optional.empty();
@@ -55,7 +56,7 @@ public class H2ScrapaData {
         return scrapaData;
     }
 
-    private static String getString(Reader characterStream) {
+    private String getString(Reader characterStream) {
         try {
             return Utils.getString(characterStream);
         } catch (IOException e) {
@@ -65,9 +66,8 @@ public class H2ScrapaData {
         return "";
     }
 
-    public static List<ScrapaData> getScrapaData(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        @Cleanup ResultSet resultSet = statement.executeQuery(ScrapaDataSQL.GET_SCRAPA_DATA);
+    public List<ScrapaData> getScrapaData() throws SQLException {
+        @Cleanup ResultSet resultSet = getStatement().executeQuery(ScrapaDataSQL.GET_SCRAPA_DATA);
         List<ScrapaData> scrapaData = new ArrayList<>();
 
         while (resultSet.next()) {
@@ -79,15 +79,51 @@ public class H2ScrapaData {
         return scrapaData;
     }
 
-    public static int addScrapaData(Connection connection, String url, String data) throws SQLException {
-        @Cleanup PreparedStatement addScrapaDataStatement = H2ScrapaData.prepareAddScrapaDataStatement(connection);
+    public int addScrapaData(String url, String data) throws SQLException {
+        PreparedStatement addScrapaDataStatement = prepareAddScrapaDataStatement();
         addScrapaDataStatement.setString(ScrapaDataSQL.COLUMNS.URL.index(), url);
         addScrapaDataStatement.setCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index(), new StringReader(data));
         return addScrapaDataStatement.executeUpdate();
     }
 
-    public static int deleteScrapaData(Connection connection) throws SQLException {
-        @Cleanup Statement statement = H2Utils.createStatement(connection);
-        return statement.executeUpdate(ScrapaDataSQL.DELETE_SCRAPA_DATA);
+    public int deleteScrapaData() throws SQLException {
+        return getStatement().executeUpdate(ScrapaDataSQL.DELETE_SCRAPA_DATA);
+    }
+
+    private Statement getStatement() throws SQLException {
+        if(statement == null) {
+            statement = H2Utils.createStatement(connection);
+        }
+        return statement;
+    }
+
+    private PreparedStatement prepareAddScrapaDataStatement() throws SQLException {
+        if(addDataStatement == null) {
+            addDataStatement = connection.prepareStatement(ScrapaDataSQL.ADD_SCRAPA_URL_DATA);
+        }
+        return addDataStatement;
+    }
+
+    private PreparedStatement prepareGetScrapaDataWhereStatement() throws SQLException {
+        if(getDataWhereStatement == null) {
+            getDataWhereStatement = connection.prepareStatement(ScrapaDataSQL.GET_SCRAPA_DATA_WHERE);
+        }
+        return getDataWhereStatement;
+    }
+
+    public void close() {
+        try {
+            if(statement != null) {
+                statement.close();
+            }
+            if(addDataStatement != null) {
+                addDataStatement.close();
+            }
+            if(getDataWhereStatement != null) {
+                getDataWhereStatement.close();
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Exception while closing statements", e);
+        }
     }
 }

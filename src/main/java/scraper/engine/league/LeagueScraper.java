@@ -6,7 +6,6 @@ import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
 import h2.connection.H2EmbeddedServer;
 import h2.table.H2ScrapaData;
-import lombok.Cleanup;
 import model.ScrapaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,15 @@ public class LeagueScraper {
     private Iterator<String> iterator;
     private MechanizeAgent mechanizeAgent;
     private H2EmbeddedServer db;
+    private H2ScrapaData h2ScrapaData;
+    private Connection connection;
 
     public LeagueScraper(Set<String> relativePaths) {
         this.relativePaths = relativePaths;
         this.iterator = relativePaths.iterator();
         mechanizeAgent = new MechanizeAgent();
         db = new H2EmbeddedServer();
+        h2ScrapaData = null;
     }
 
     public boolean hasNext() {
@@ -102,7 +104,7 @@ public class LeagueScraper {
 
     private void cacheData(String url, String data) {
         try {
-            H2ScrapaData.addScrapaData(db.getConnection(), url, data);
+            getH2ScrapaData().addScrapaData(url, data);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception while attempting to save Cache Data", e);
         }
@@ -111,9 +113,8 @@ public class LeagueScraper {
     private Optional<ScrapaData> getCachedData(String relativePath) {
         Optional<ScrapaData> scrapaData = Optional.empty();
         try {
-            @Cleanup Connection connection = db.getConnection();
-            H2ScrapaData.createScrapaDataTable(connection);
-            scrapaData = H2ScrapaData.getScrapaDataWhere(connection, relativePath);
+            getH2ScrapaData().createScrapaDataTable();
+            scrapaData = getH2ScrapaData().getScrapaDataWhere(relativePath);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception while attempting to get Cached Data", e);
         }
@@ -128,6 +129,26 @@ public class LeagueScraper {
     }
 
     public void close() {
+        if(h2ScrapaData != null) {
+            h2ScrapaData.close();
+            closeConnection();
+        }
         db.close();
+    }
+
+    private void closeConnection() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            LOGGER.error("Exception while closing connection", e);
+        }
+    }
+
+    private H2ScrapaData getH2ScrapaData() throws SQLException {
+        if(h2ScrapaData == null) {
+            connection = db.getConnection();
+            h2ScrapaData = new H2ScrapaData(connection);
+        }
+        return h2ScrapaData;
     }
 }

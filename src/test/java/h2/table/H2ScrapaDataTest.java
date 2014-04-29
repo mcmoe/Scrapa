@@ -2,8 +2,8 @@ package h2.table;
 
 import commons.Utils;
 import h2.connection.H2MemoryServer;
-import h2.connection.H2Utils;
 import h2.sql.ScrapaDataSQL;
+import h2.table.commons.ColumnsMeta;
 import lombok.Cleanup;
 import model.ScrapaData;
 import org.junit.After;
@@ -34,6 +34,7 @@ public class H2ScrapaDataTest {
     private static final String DATA = getScrapedData();
 
     private static H2MemoryServer h2MemoryServer;
+    private static H2ScrapaData h2ScrapaData;
 
     private static String getScrapedData() {
         String scrapedData = "";
@@ -49,18 +50,25 @@ public class H2ScrapaDataTest {
     @BeforeClass
     public static void setUp() {
         h2MemoryServer = new H2MemoryServer();
+        try {
+            h2ScrapaData = new H2ScrapaData(h2MemoryServer.getConnection());
+            h2ScrapaData.createScrapaDataTable();
+        } catch (SQLException e) {
+            LOGGER.error("SQL Exception on setUp!", e);
+            fail("setUp Exception - check logs");
+        }
     }
 
     @AfterClass
     public static void tearDown() {
+        h2ScrapaData.close();
         h2MemoryServer.close();
     }
 
     @After
     public void resetTable() {
         try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2ScrapaData.deleteScrapaData(connection);
+            h2ScrapaData.deleteScrapaData();
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered on reset table!", e);
             fail("SQL Exception on tear down - check logs");
@@ -68,14 +76,10 @@ public class H2ScrapaDataTest {
     }
 
     @Test
-    public void test_scrapa_data_meta_data() {
+    public void test_table_columns_meta_data() {
         try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2ScrapaData.createScrapaDataTable(connection);
-
-            @Cleanup Statement statement = H2Utils.createStatement(connection);
-            @Cleanup ResultSet scrapaData = H2ScrapaData.getScrapaData(statement);
-            assertResultSetMetaData(scrapaData);
+            @Cleanup ResultSet metaData = h2ScrapaData.getMetaData();
+            assertColumnsMetaData(metaData);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception encountered!", e);
             fail("SQL Exception - check logs");
@@ -83,81 +87,57 @@ public class H2ScrapaDataTest {
     }
 
     @Test
-    public void test_scrapa_data_add_and_get() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2ScrapaData.createScrapaDataTable(connection);
-            assertEquals(1, H2ScrapaData.addScrapaData(connection, URL, DATA));
+    public void test_scrapa_data_add_and_get() throws SQLException {
+        assertEquals(1, h2ScrapaData.addScrapaData(URL, DATA));
 
-            List<ScrapaData> scrapaDataList = H2ScrapaData.getScrapaData(connection);
-            assertEquals(1, scrapaDataList.size());
-            ScrapaData scrapaData = scrapaDataList.get(0);
+        List<ScrapaData> scrapaDataList = h2ScrapaData.getScrapaData();
+        assertEquals(1, scrapaDataList.size());
+        ScrapaData scrapaData = scrapaDataList.get(0);
 
-            assertEquals(URL, scrapaData.getUrl());
-            assertEquals(DATA, scrapaData.getData());
-
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+        assertEquals(URL, scrapaData.getUrl());
+        assertEquals(DATA, scrapaData.getData());
     }
 
     @Test
-    public void test_scrapa_data_add_and_get_where() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2ScrapaData.createScrapaDataTable(connection);
-            assertEquals(1, H2ScrapaData.addScrapaData(connection, URL, DATA));
+    public void test_scrapa_data_add_and_get_where() throws SQLException {
+        assertEquals(1, h2ScrapaData.addScrapaData(URL, DATA));
 
-            Optional<ScrapaData> scrapaData = H2ScrapaData.getScrapaDataWhere(connection, URL);
-            assertTrue(scrapaData.isPresent());
+        Optional<ScrapaData> scrapaData = h2ScrapaData.getScrapaDataWhere(URL);
+        assertTrue(scrapaData.isPresent());
 
-            assertEquals(URL, scrapaData.get().getUrl());
-            assertEquals(DATA, scrapaData.get().getData());
-
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+        assertEquals(URL, scrapaData.get().getUrl());
+        assertEquals(DATA, scrapaData.get().getData());
     }
 
     @Test(expected = SQLException.class)
     public void test_scrapa_data_add_duplicate() throws SQLException {
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2ScrapaData.createScrapaDataTable(connection);
-        H2ScrapaData.addScrapaData(connection, URL, DATA);
-        H2ScrapaData.addScrapaData(connection, URL, DATA);
+        h2ScrapaData.addScrapaData(URL, DATA);
+        h2ScrapaData.addScrapaData(URL, DATA);
     }
 
     @Test(expected = SQLException.class)
     public void test_scrapa_data_add_primary_key_duplicate() throws SQLException {
-        @Cleanup Connection connection = h2MemoryServer.getConnection();
-        H2ScrapaData.createScrapaDataTable(connection);
-        H2ScrapaData.addScrapaData(connection, URL, DATA);
-        H2ScrapaData.addScrapaData(connection, URL, DATA + 1);
+        h2ScrapaData.addScrapaData(URL, DATA);
+        h2ScrapaData.addScrapaData(URL, DATA + 1);
     }
 
     @Test
-    public void test_scrapa_data_add_and_delete() {
-        try {
-            @Cleanup Connection connection = h2MemoryServer.getConnection();
-            H2ScrapaData.createScrapaDataTable(connection);
-            assertEquals(1, H2ScrapaData.addScrapaData(connection, URL, DATA));
-            assertEquals(1, H2ScrapaData.deleteScrapaData(connection));
-        } catch (SQLException e) {
-            LOGGER.error("SQL Exception encountered !", e);
-            fail("SQL Exception - check logs");
-        }
+    public void test_scrapa_data_add_and_delete() throws SQLException {
+        assertEquals(1, h2ScrapaData.addScrapaData(URL, DATA));
+        assertEquals(1, h2ScrapaData.deleteScrapaData());
     }
 
-    private void assertResultSetMetaData(ResultSet scrapaData) throws SQLException {
-        ResultSetMetaData metaData = scrapaData.getMetaData();
-        assertEquals(2, metaData.getColumnCount());
+    private void assertColumnsMetaData(ResultSet metaData) throws SQLException {
+        metaData.next();
+        assertEquals(metaData.getRow(), ScrapaDataSQL.COLUMNS.URL.index());
+        assertEquals("URL", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("VARCHAR", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("URL", metaData.getColumnName(ScrapaDataSQL.COLUMNS.URL.index()));
-        assertEquals("VARCHAR", metaData.getColumnTypeName(ScrapaDataSQL.COLUMNS.URL.index()));
+        metaData.next();
+        assertEquals(metaData.getRow(), ScrapaDataSQL.COLUMNS.DATA.index());
+        assertEquals("DATA", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("CLOB", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
-        assertEquals("DATA", metaData.getColumnName(ScrapaDataSQL.COLUMNS.DATA.index()));
-        assertEquals("CLOB", metaData.getColumnTypeName(ScrapaDataSQL.COLUMNS.DATA.index()));
+        assertEquals("there should not be anymore rows!", false, metaData.next());
     }
 }
