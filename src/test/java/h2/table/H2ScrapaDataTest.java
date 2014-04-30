@@ -112,16 +112,37 @@ public class H2ScrapaDataTest {
         assertTrue(CURRENT_TIMESTAMP_UTC.before(scrapaData.get().getAddedOnUTC()));
     }
 
-    @Test(expected = SQLException.class)
+    @Test
     public void test_scrapa_data_add_duplicate() throws SQLException {
-        h2ScrapaData.addScrapaData(URL, DATA);
-        h2ScrapaData.addScrapaData(URL, DATA);
+        try {
+            assertEquals(0, h2ScrapaData.getScrapaData().size());
+            assertEquals(1, h2ScrapaData.addScrapaData(URL, DATA));
+            assertEquals(1, h2ScrapaData.getScrapaData().size());
+            h2ScrapaData.addScrapaData(URL, DATA);
+            fail("should not be allowed to insert duplicate data!");
+        } catch(SQLException e) {
+            assertEquals(1, h2ScrapaData.getScrapaData().size());
+        }
     }
 
-    @Test(expected = SQLException.class)
+    @Test
+    public void test_scrapa_data_merge_duplicate() throws SQLException {
+        assertEquals(0, h2ScrapaData.getScrapaData().size());
+        assertEquals(1, h2ScrapaData.mergeScrapaData(URL, DATA));
+        assertEquals(1, h2ScrapaData.getScrapaData().size());
+        assertEquals(1, h2ScrapaData.mergeScrapaData(URL, DATA));
+        assertEquals(1, h2ScrapaData.getScrapaData().size());
+    }
+
+    @Test
     public void test_scrapa_data_add_primary_key_duplicate() throws SQLException {
-        h2ScrapaData.addScrapaData(URL, DATA);
-        h2ScrapaData.addScrapaData(URL, DATA + 1);
+        try {
+            h2ScrapaData.addScrapaData(URL, DATA);
+            h2ScrapaData.addScrapaData(URL, DATA + 1);
+            fail("should not be allowed to insert duplicate data!");
+        } catch(SQLException e) {
+            assertEquals(1, h2ScrapaData.getScrapaData().size());
+        }
     }
 
     @Test

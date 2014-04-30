@@ -4,9 +4,11 @@ import com.gistlabs.mechanize.MechanizeAgent;
 import com.gistlabs.mechanize.document.html.HtmlDocument;
 import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.html.query.HtmlQueryBuilder;
+import commons.Utils;
 import h2.connection.H2EmbeddedServer;
 import h2.table.H2ScrapaData;
 import model.ScrapaData;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scraper.wrapper.LeagueScraperData;
@@ -55,7 +57,7 @@ public class LeagueScraper {
 
     private LeagueScraperData scrapeWeb(String relativePath) {
         String season = HTTP_DOMAIN + relativePath;
-        Optional<ScrapaData> cachedData = getCachedDataIfDataFromThePast(season);
+        Optional<ScrapaData> cachedData = getCachedDataIfValid(season);
 
         String data;
         if(cachedData.isPresent()) {
@@ -67,34 +69,26 @@ public class LeagueScraper {
         return new LeagueScraperData(season, data);
     }
 
-    /**
-     * Only checks for cached data if the data is from the past (i.e not current season)
-     * This both helps avoid uselessly reading the db or worse retrieve outdated data!
-     * Algorithm: "Seasons" appears in the url of all past data - (for player tables ist "Goals")
-     *
-     * @param season the season url to scrape
-     * @return the past cached data or nothing
-     */
-    private Optional<ScrapaData> getCachedDataIfDataFromThePast(String season) {
-        Optional<ScrapaData> cachedData = Optional.empty();
-        if(isFromThePast(season)) {
-            return getCachedData(season);
-        }
-        return cachedData;
-    }
-
     private String scrapeNow(String season) {
         HtmlDocument page = mechanizeAgent.get(season);
         HtmlElement table = page.htmlElements().get(HtmlQueryBuilder.byTag("tbody"));
         String normalizedXml = normalizeXml(table.toString());
-        cacheDataIfDataFromThePast(season, normalizedXml);
+        cacheData(season, normalizedXml);
         LOGGER.info(normalizedXml);
         return normalizedXml;
     }
 
-    private void cacheDataIfDataFromThePast(String season, String data) {
+    /**
+     * if the data is from the past then we insert it since we know we will only be doing it once
+     * if it is a current season, then we know we update it on a daily basis so a merge is required
+     * @param season the url of the scraped data
+     * @param data the scraped data
+     */
+    private void cacheData(String season, String data) {
         if(isFromThePast(season)) {
-            cacheData(season, data);
+            addCacheData(season, data);
+        } else {
+            mergeCacheData(season, data);
         }
     }
 
@@ -102,18 +96,54 @@ public class LeagueScraper {
         return season.contains("Seasons");
     }
 
-    private void cacheData(String url, String data) {
+    private void mergeCacheData(String url, String data) {
+        try {
+            getH2ScrapaData().mergeScrapaData(url, data);
+        } catch (SQLException e) {
+            LOGGER.error("SQL Exception while attempting to merge Cache Data", e);
+        }
+    }
+
+    private void addCacheData(String url, String data) {
         try {
             getH2ScrapaData().addScrapaData(url, data);
         } catch (SQLException e) {
-            LOGGER.error("SQL Exception while attempting to save Cache Data", e);
+            LOGGER.error("SQL Exception while attempting to insert Cache Data", e);
         }
+    }
+
+    /**
+     * Only checks for cached data if the data is from the past (i.e not current season)
+     * or if it is current season BUT less than a day old (since current season always updates)
+     * This means that data from current season is accurate to one day from cached data at all times
+     * Algorithm: "Seasons" appears in the url of all past data - (for player tables its "Goals")
+     * For current seasons, if its timestamp is less than a day old, then we consider it valid
+     *
+     * @param season the season url to scrape
+     * @return the valid cached data or nothing
+     */
+    private Optional<ScrapaData> getCachedDataIfValid(String season) {
+        Optional<ScrapaData> validData = Optional.empty();
+        Optional<ScrapaData> cachedData = getCachedData(season);
+        if(cachedData.isPresent() && isValidCache(season, cachedData.get())){
+            validData = cachedData;
+        }
+        return validData;
+    }
+
+    private boolean isValidCache(String season, ScrapaData data) {
+        return isFromThePast(season) || isLessThanOneDayOld(data);
+    }
+
+    private boolean isLessThanOneDayOld(ScrapaData data) {
+        DateTime dataTime = new DateTime(data.getAddedOnUTC().getTime());
+        return dataTime.plusDays(1).isAfter(Utils.getCurrentTimeStampUTC().getTime());
     }
 
     private Optional<ScrapaData> getCachedData(String relativePath) {
         Optional<ScrapaData> scrapaData = Optional.empty();
         try {
-            getH2ScrapaData().createScrapaDataTable();
+            getH2ScrapaData().createScrapaDataTable(); // TODO - remove me when flyway is implemented!!
             scrapaData = getH2ScrapaData().getScrapaDataWhere(relativePath);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception while attempting to get Cached Data", e);

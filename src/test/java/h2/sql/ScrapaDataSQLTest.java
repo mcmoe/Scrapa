@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 public class ScrapaDataSQLTest {
     private static final String CREATE = "CREATE TABLE IF NOT EXISTS SCRAPA_DATA(URL VARCHAR(255), DATA CLOB, ADDED_ON_UTC TIMESTAMP, PRIMARY KEY (URL))";
     private static final String INSERT = "INSERT INTO SCRAPA_DATA (URL, DATA, ADDED_ON_UTC) VALUES (?,?,?)";
+    private static final String MERGE  = "MERGE INTO SCRAPA_DATA (URL, DATA, ADDED_ON_UTC) VALUES (?,?,?)";
     private static final String SELECT = "SELECT * FROM SCRAPA_DATA";
     private static final String DELETE = "DELETE FROM SCRAPA_DATA";
 
@@ -24,6 +25,10 @@ public class ScrapaDataSQLTest {
         assertEquals(INSERT, ScrapaDataSQL.ADD_SCRAPA_URL_DATA);
     }
 
+    @Test
+    public void test_merge_to_table_sql() {
+        assertEquals(MERGE, ScrapaDataSQL.MERGE_SCRAPA_URL_DATA);
+    }
     @Test
     public void test_get_from_table_sql() {
         assertEquals(SELECT, ScrapaDataSQL.GET_SCRAPA_DATA);

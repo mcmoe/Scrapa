@@ -25,6 +25,7 @@ public class H2ScrapaData {
 
     private Statement statement;
     private PreparedStatement addDataStatement;
+    private PreparedStatement mergeDataStatement;
     private PreparedStatement getDataWhereStatement;
 
     private final Connection connection;
@@ -82,10 +83,20 @@ public class H2ScrapaData {
 
     public int addScrapaData(String url, String data) throws SQLException {
         PreparedStatement addScrapaDataStatement = prepareAddScrapaDataStatement();
-        addScrapaDataStatement.setString(ScrapaDataSQL.COLUMNS.URL.index(), url);
-        addScrapaDataStatement.setCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index(), new StringReader(data));
-        addScrapaDataStatement.setTimestamp(ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index(), Utils.getCurrentTimeStampUTC());
+        setAddOrMergeValues(url, data, addScrapaDataStatement);
         return addScrapaDataStatement.executeUpdate();
+    }
+
+    private void setAddOrMergeValues(String url, String data, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setString(ScrapaDataSQL.COLUMNS.URL.index(), url);
+        preparedStatement.setCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index(), new StringReader(data));
+        preparedStatement.setTimestamp(ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index(), Utils.getCurrentTimeStampUTC());
+    }
+
+    public int mergeScrapaData(String url, String data) throws SQLException {
+        PreparedStatement mergeScrapaDataStatement = prepareMergeScrapaDataStatement();
+        setAddOrMergeValues(url, data, mergeScrapaDataStatement);
+        return mergeScrapaDataStatement.executeUpdate();
     }
 
     public int deleteScrapaData() throws SQLException {
@@ -105,6 +116,12 @@ public class H2ScrapaData {
         }
         return addDataStatement;
     }
+    private PreparedStatement prepareMergeScrapaDataStatement() throws SQLException {
+            if(mergeDataStatement == null) {
+                mergeDataStatement = connection.prepareStatement(ScrapaDataSQL.MERGE_SCRAPA_URL_DATA);
+            }
+            return mergeDataStatement;
+        }
 
     private PreparedStatement prepareGetScrapaDataWhereStatement() throws SQLException {
         if(getDataWhereStatement == null) {
@@ -120,6 +137,9 @@ public class H2ScrapaData {
             }
             if(addDataStatement != null) {
                 addDataStatement.close();
+            }
+            if(mergeDataStatement != null) {
+                mergeDataStatement.close();
             }
             if(getDataWhereStatement != null) {
                 getDataWhereStatement.close();

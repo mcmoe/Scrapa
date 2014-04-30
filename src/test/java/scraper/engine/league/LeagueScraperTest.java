@@ -2,7 +2,6 @@ package scraper.engine.league;
 
 import com.google.common.collect.Sets;
 import lombok.Cleanup;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +19,16 @@ import static scraper.engine.league.LeagueScraperMocker.scrapeMock;
  */
 public class LeagueScraperTest {
     /**
-     * PLEASE NOTE : scraping current season (2013-2014) is set to never access cached data
-     *  this is needed to ensure latest data since the current season is regularly changing.
-     *  So we ignore this test to avoid spamming the web server
-     *  please launch manually before any commit!
-     *  if it fails, the mock is most probably out of date and needs updating
+     * PLEASE NOTE : scraping current season (2013-2014) caches once per day
+     * due to its changing nature, if the test fails,
+     * then the mock is most probably out of date and needs updating
     **/
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeagueScraperTest.class);
     private static final String ENGLAND_2012 = "England/Seasons/S2012.html";
     private static final String ENGLAND_1986 = "England/Seasons/S1986.html";
 
-    @Test @Ignore
+    @Test
     public void test_get_2013_top_scorers_and_scrape() {
         try {
             String season = "England/S2013.html";
