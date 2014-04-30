@@ -16,13 +16,13 @@ public class LeagueStandingTest {
 
     @Test
     public void test_league_standing_creation() {
-        LeagueStanding leagueStanding = new LeagueStanding(MANCHESTER_UNITED, STANDING);
+        LeagueStanding leagueStanding = new LeagueStanding(STANDING, MANCHESTER_UNITED);
         assertNotNull(leagueStanding);
     }
 
     @Test
     public void test_league_standing_getters_consistency() {
-        LeagueStanding leagueStanding = new LeagueStanding(MANCHESTER_UNITED, STANDING);
+        LeagueStanding leagueStanding = new LeagueStanding(STANDING, MANCHESTER_UNITED);
         assertEquals(MANCHESTER_UNITED, leagueStanding.getTeam());
         assertEquals(STANDING, leagueStanding.getStanding());
     }

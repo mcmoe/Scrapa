@@ -113,7 +113,7 @@ public class LeagueParser {
     }
 
     private void visitLeagueStanding(LeagueStandingVisitor visitor, Node teamNameCell, int standing) {
-        LeagueStanding leagueStanding = buildLeagueStanding(cellToString(teamNameCell), standing);
+        LeagueStanding leagueStanding = buildLeagueStanding(standing, cellToString(teamNameCell));
         visitor.onRow(leagueStanding);
     }
 
@@ -129,8 +129,8 @@ public class LeagueParser {
         return new TopScorer(player, team, Integer.valueOf(goals));
     }
 
-    private static LeagueStanding buildLeagueStanding(String team, int standing) {
-        return new LeagueStanding(team, standing);
+    private static LeagueStanding buildLeagueStanding(int standing, String team) {
+        return new LeagueStanding(standing, team);
     }
 
     /* Only reason i keep this is to illustrate the use of Optional */

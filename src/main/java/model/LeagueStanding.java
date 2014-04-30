@@ -8,10 +8,10 @@ import lombok.Data;
  */
 @Data
 public class LeagueStanding {
-    private final int standing;
     private final String team;
+    private final int standing;
 
-    public LeagueStanding(String team, int standing) {
+    public LeagueStanding(int standing, String team) {
         this.team = team;
         this.standing = standing;
     }
