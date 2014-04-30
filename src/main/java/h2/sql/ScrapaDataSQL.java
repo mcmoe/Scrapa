@@ -9,11 +9,12 @@ public class ScrapaDataSQL {
     public static final String SCRAPA_DATA_TABLE = "SCRAPA_DATA";
     private static final String URL = "URL";
     private static final String DATA = "DATA";
+    private static final String ADDED_ON_UTC = "ADDED_ON_UTC";
 
     public enum COLUMNS {
         URL(1),
-        DATA(2);
-
+        DATA(2),
+        ADDED_ON_UTC(3);
         private final int index;
         COLUMNS(int index) {
             this.index = index;
@@ -22,14 +23,14 @@ public class ScrapaDataSQL {
             return index;
         }
     }
-
     public static final String
             ADD_SCRAPA_URL_DATA =
-            "INSERT INTO " + SCRAPA_DATA_TABLE + " (" + URL + ", " + DATA + ") VALUES (?,?)";
+            "INSERT INTO " + SCRAPA_DATA_TABLE + " (" + URL + ", " + DATA + ", " + ADDED_ON_UTC + ") VALUES (?,?,?)";
     public static final String
             CREATE_SCRAPA_DATA_TABLE =
             "CREATE TABLE IF NOT EXISTS " + SCRAPA_DATA_TABLE + "("
                     + URL + " VARCHAR(255), " + DATA + " CLOB, "
+                    + ADDED_ON_UTC + " TIMESTAMP, "
                     + "PRIMARY KEY (URL)"
                     + ")";
     public static final String

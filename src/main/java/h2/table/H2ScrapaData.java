@@ -48,9 +48,9 @@ public class H2ScrapaData {
         Optional<ScrapaData> scrapaData = Optional.empty();
 
         if(resultSet.next()) {
-            Reader characterStream = resultSet.getCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index());
-            String data = getString(characterStream);
-            scrapaData = Optional.of(new ScrapaData(url, data));
+            String data = getString(resultSet.getCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index()));
+            Timestamp addedOnUTC = resultSet.getTimestamp(ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index());
+            scrapaData = Optional.of(new ScrapaData(url, data, addedOnUTC));
         }
 
         return scrapaData;
@@ -71,9 +71,10 @@ public class H2ScrapaData {
         List<ScrapaData> scrapaData = new ArrayList<>();
 
         while (resultSet.next()) {
-            Reader characterStream = resultSet.getCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index());
-            String string = resultSet.getString(ScrapaDataSQL.COLUMNS.URL.index());
-            scrapaData.add(new ScrapaData(string,getString(characterStream)));
+            String url = resultSet.getString(ScrapaDataSQL.COLUMNS.URL.index());
+            String data = getString(resultSet.getCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index()));
+            Timestamp addedOnUTC = resultSet.getTimestamp(ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index());
+            scrapaData.add(new ScrapaData(url, data, addedOnUTC));
         }
 
         return scrapaData;
@@ -83,6 +84,7 @@ public class H2ScrapaData {
         PreparedStatement addScrapaDataStatement = prepareAddScrapaDataStatement();
         addScrapaDataStatement.setString(ScrapaDataSQL.COLUMNS.URL.index(), url);
         addScrapaDataStatement.setCharacterStream(ScrapaDataSQL.COLUMNS.DATA.index(), new StringReader(data));
+        addScrapaDataStatement.setTimestamp(ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index(), Utils.getCurrentTimeStampUTC());
         return addScrapaDataStatement.executeUpdate();
     }
 

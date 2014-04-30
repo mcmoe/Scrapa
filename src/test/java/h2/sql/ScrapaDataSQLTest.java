@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
  * Created by mcmoe on 4/28/2014.
  */
 public class ScrapaDataSQLTest {
-    private static final String CREATE = "CREATE TABLE IF NOT EXISTS SCRAPA_DATA(URL VARCHAR(255), DATA CLOB, PRIMARY KEY (URL))";
-    private static final String INSERT = "INSERT INTO SCRAPA_DATA (URL, DATA) VALUES (?,?)";
+    private static final String CREATE = "CREATE TABLE IF NOT EXISTS SCRAPA_DATA(URL VARCHAR(255), DATA CLOB, ADDED_ON_UTC TIMESTAMP, PRIMARY KEY (URL))";
+    private static final String INSERT = "INSERT INTO SCRAPA_DATA (URL, DATA, ADDED_ON_UTC) VALUES (?,?,?)";
     private static final String SELECT = "SELECT * FROM SCRAPA_DATA";
     private static final String DELETE = "DELETE FROM SCRAPA_DATA";
 

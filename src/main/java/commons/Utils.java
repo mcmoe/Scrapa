@@ -1,8 +1,11 @@
 package commons;
 
 import lombok.Cleanup;
+import org.joda.time.DateTimeZone;
 
 import java.io.*;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import static java.util.stream.Collectors.joining;
 
@@ -23,5 +26,10 @@ public class Utils {
 
     private static String readAll(BufferedReader bufferedReader) {
         return bufferedReader.lines().collect(joining(""));
+    }
+
+    public static Timestamp getCurrentTimeStampUTC() {
+        DateTimeZone tz = DateTimeZone.getDefault();
+        return new Timestamp(tz.convertLocalToUTC(new Date().getTime(), false));
     }
 }

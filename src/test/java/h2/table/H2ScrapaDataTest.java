@@ -32,6 +32,7 @@ public class H2ScrapaDataTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(H2ScrapaDataTest.class);
     private static final String URL = "some/thing/like/this.html";
     private static final String DATA = getScrapedData();
+    private static final Timestamp CURRENT_TIMESTAMP_UTC = Utils.getCurrentTimeStampUTC();
 
     private static H2MemoryServer h2MemoryServer;
     private static H2ScrapaData h2ScrapaData;
@@ -96,6 +97,7 @@ public class H2ScrapaDataTest {
 
         assertEquals(URL, scrapaData.getUrl());
         assertEquals(DATA, scrapaData.getData());
+        assertTrue(CURRENT_TIMESTAMP_UTC.before(scrapaData.getAddedOnUTC()));
     }
 
     @Test
@@ -107,6 +109,7 @@ public class H2ScrapaDataTest {
 
         assertEquals(URL, scrapaData.get().getUrl());
         assertEquals(DATA, scrapaData.get().getData());
+        assertTrue(CURRENT_TIMESTAMP_UTC.before(scrapaData.get().getAddedOnUTC()));
     }
 
     @Test(expected = SQLException.class)
@@ -137,6 +140,11 @@ public class H2ScrapaDataTest {
         assertEquals(metaData.getRow(), ScrapaDataSQL.COLUMNS.DATA.index());
         assertEquals("DATA", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
         assertEquals("CLOB", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
+
+        metaData.next();
+        assertEquals(metaData.getRow(), ScrapaDataSQL.COLUMNS.ADDED_ON_UTC.index());
+        assertEquals("ADDED_ON_UTC", metaData.getString(ColumnsMeta.DATA.COLUMN_NAME.index()));
+        assertEquals("TIMESTAMP", metaData.getString(ColumnsMeta.DATA.TYPE_NAME.index()));
 
         assertEquals("there should not be anymore rows!", false, metaData.next());
     }
