@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- *
+ * Wrapper for H2 SCRAPA_DATA table SQL transactions
  * Created by mcmoe on 4/28/2014.
  */
 public class H2ScrapaData {

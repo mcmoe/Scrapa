@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for all H2 related processing on TOP_SCORER table
+ * Wrapper for H2 TOP_SCORER table SQL transactions
  * Created by mcmoe on 4/26/2014.
  */
 public class H2TopScorer {

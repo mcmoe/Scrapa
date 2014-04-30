@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for all H2 related processing on TEAM_GOALS table
+ * Wrapper for H2 TEAM_GOALS table SQL transactions
  * Created by mcmoe on 4/28/2014.
  */
 public class H2TeamGoals {
