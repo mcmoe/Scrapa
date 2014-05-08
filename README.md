@@ -9,15 +9,17 @@ Now, it is a WIP at
 
 ####Some of the stuff used in this project:####
 
-- java 8 stream API
+- flyway
 - gradle
-- mechanize
-- lombok
-- H2
-- JOOQ
+- H2 (embedded & in-memory)
+- java 8 stream API
+- java nio
 - JDBC API
-- XML Parsing
+- JOOQ
+- lombok
+- mechanize
 - SLF4J + LOG4J
+- XML Parsing
 
 If you're interested in learning about these tools and API's in a simple project, now is your chance :)
 
