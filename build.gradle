@@ -54,3 +54,5 @@ flyway {
     user = props.getProperty('h2.db.user')
     password = props.getProperty('h2.db.password')
 }
+
+build.dependsOn(flywayMigrate)
