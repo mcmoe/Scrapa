@@ -9,7 +9,7 @@ Now, it is a WIP at
 
 ####Some of the stuff used in this project:####
 
-- flyway
+- flyway (db migration)
 - gradle
 - H2 (embedded & in-memory)
 - java 8 stream API
