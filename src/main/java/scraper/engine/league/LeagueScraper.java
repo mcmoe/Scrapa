@@ -143,7 +143,6 @@ public class LeagueScraper {
     private Optional<ScrapaData> getCachedData(String relativePath) {
         Optional<ScrapaData> scrapaData = Optional.empty();
         try {
-            getH2ScrapaData().createScrapaDataTable(); // TODO - remove me when flyway is implemented!!
             scrapaData = getH2ScrapaData().getScrapaDataWhere(relativePath);
         } catch (SQLException e) {
             LOGGER.error("SQL Exception while attempting to get Cached Data", e);

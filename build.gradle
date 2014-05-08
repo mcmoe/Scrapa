@@ -1,3 +1,4 @@
+apply plugin: 'flyway'
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
@@ -8,6 +9,17 @@ task wrapper(type: Wrapper) {
     distributionUrl = 'http://services.gradle.org/distributions/gradle-1.11-all.zip'
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.h2database:h2:1.4.177'
+        classpath 'org.flywaydb:flyway-gradle-plugin:3.0'
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -16,12 +28,29 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.12.6'
     compile group: "com.gistlabs", name: "mechanize", version: "0.11.0"
+    compile 'com.h2database:h2:1.4.177'
     compile 'org.jooq:jooq:3.3.1'
     compile 'org.jooq:jooq-meta:3.3.1'
     compile 'org.jooq:jooq-codegen:3.3.1'
-    compile 'com.h2database:h2:1.4.177'
     compile 'org.slf4j:slf4j-api:1.7.2'
     compile 'org.slf4j:slf4j-log4j12:1.7.2'
     compile 'com.google.guava:guava:16.0.1'
     compile 'joda-time:joda-time:2.3'
+}
+
+
+def props = new Properties()
+file(property('db.properties')).withInputStream { props.load(it) }
+
+/**
+ * check: http://forums.gradle.org/gradle/topics/gradle_fails_on_jdk8_with_java_lang_classnotfoundexception_java_util_hashmap_entry
+ *  - expected to be fixed in june release of gradle
+ *  once available we can access the properties directly with: property('property.name')
+ */
+// project.ext.params = new ConfigSlurper().parse(props)
+
+flyway {
+    url = props.getProperty('h2.db.file') + projectDir.path + props.getProperty('h2.db.url')
+    user = props.getProperty('h2.db.user')
+    password = props.getProperty('h2.db.password')
 }
