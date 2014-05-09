@@ -1,8 +1,10 @@
 apply plugin: 'flyway'
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.8
-version = '1.0'
+group = 'com.mcmoe'
+version = '0.1'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
@@ -11,6 +13,7 @@ task wrapper(type: Wrapper) {
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
@@ -56,3 +59,4 @@ flyway {
 }
 
 build.dependsOn(flywayMigrate)
+build.dependsOn(install)
