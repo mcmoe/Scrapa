@@ -18,11 +18,10 @@ public class DbInfo {
 
     static final String H2_MEM_DB = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
     static final String H2_EMBD_DB = properties.getProperty("h2.db.file") + "./"
-                                       + properties.getProperty("h2.db.url")
-                                       + ";DB_CLOSE_DELAY=-1";
+                                   + properties.getProperty("h2.db.url")
+                                   + ";DB_CLOSE_DELAY=-1";
     static final String PASSWORD = properties.getProperty("h2.db.password");
     static final String USER = properties.getProperty("h2.db.user");
-
 
     /**
      * Load DB properties file from src/main/resources/db.properties

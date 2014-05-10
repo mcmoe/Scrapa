@@ -1,14 +1,26 @@
-apply plugin: 'flyway'
 apply plugin: 'java'
+apply plugin: 'jooq'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.8
+allprojects {
+    sourceCompatibility = 1.8
+}
+
 group = 'com.mcmoe'
 version = '0.1'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
     distributionUrl = 'http://services.gradle.org/distributions/gradle-1.11-all.zip'
+}
+
+/* add migration resources - in case flyway java migration needed */
+sourceSets {
+    main {
+        resources {
+            srcDir 'migration/src/main/resources'
+        }
+    }
 }
 
 buildscript {
@@ -19,7 +31,7 @@ buildscript {
 
     dependencies {
         classpath 'com.h2database:h2:1.4.177'
-        classpath 'org.flywaydb:flyway-gradle-plugin:3.0'
+        classpath 'com.github.ben-manes:gradle-jooq-plugin:latest.integration'
     }
 }
 
@@ -51,12 +63,40 @@ file(property('db.properties')).withInputStream { props.load(it) }
  *  once available we can access the properties directly with: property('property.name')
  */
 // project.ext.params = new ConfigSlurper().parse(props)
+ext.db_full_url = props.getProperty('h2.db.file') + projectDir.path + props.getProperty('h2.db.url')
+ext.db_user = props.getProperty('h2.db.user')
+ext.db_pass = props.getProperty('h2.db.password')
 
-flyway {
-    url = props.getProperty('h2.db.file') + projectDir.path + props.getProperty('h2.db.url')
-    user = props.getProperty('h2.db.user')
-    password = props.getProperty('h2.db.password')
+generateJooq.dependsOn(":migration:build")
+generateJooq.dependsOn(":migration:flywayMigrate")
+compileJava.dependsOn(generateJooq)
+
+generateJooq {
+    outputs.upToDateWhen {
+        !generateJooq.dependsOnTaskDidWork()
+    }
 }
 
-build.dependsOn(flywayMigrate)
+jooq {
+    jdbc {
+        driver 'org.h2.Driver'
+        url db_full_url
+        user 'sa'
+    }
+    generator {
+        database {
+            name 'org.jooq.util.h2.H2Database'
+            inputSchema ''
+            includes '.*'
+        }
+        generate {
+            deprecated false
+        }
+        target {
+            packageName 'scrapa.jooq'
+            directory "${buildDir}/generated-sources/"
+        }
+    }
+}
+
 build.dependsOn(install)

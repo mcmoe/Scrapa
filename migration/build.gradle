@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'flyway'
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.h2database:h2:1.4.177'
+        classpath 'org.flywaydb:flyway-gradle-plugin:3.0'
+    }
+}
+
+flyway {
+    url db_full_url
+    user 'sa'
+}
